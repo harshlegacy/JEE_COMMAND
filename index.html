@@ -1,0 +1,2569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0b0d14">
+<meta name="description" content="JEE 2027 Study Command Center — Track questions, syllabus, mock tests and more">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JEE Command">
+<title>JEE Command · 2027</title>
+<link rel="manifest" id="pwa-manifest">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --bg: #0b0d14;
+  --sidebar: #0e1118;
+  --card: #13161f;
+  --card2: #181c28;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.14);
+  --accent: #4f7cff;
+  --accent2: #9d7fff;
+  --accent3: #2dd4bf;
+  --accent4: #f59e0b;
+  --accent5: #f87171;
+  --text: #e8eaf6;
+  --text2: #6b7299;
+  --text3: #363a52;
+  --phy: #38bdf8;
+  --che: #c084fc;
+  --mat: #34d399;
+  --isi: #fb923c;
+  --sidebar-w: 220px;
+  --glow-accent: rgba(79,124,255,0.15);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; }
+body { font-family:'Syne',sans-serif; background:var(--bg); color:var(--text); display:flex; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--sidebar);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: none;
+}
+.sidebar::-webkit-scrollbar { display:none; }
+
+.sb-brand {
+  padding: 22px 18px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.sb-brand-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+.sb-icon { font-size: 18px; }
+.sb-name { font-size: 15px; font-weight: 700; letter-spacing: -.2px; }
+.sb-sub { font-size: 10px; color: var(--text2); text-transform: uppercase; letter-spacing: 1.2px; padding-left: 26px; }
+
+.sb-section { padding: 16px 12px 4px; }
+.sb-section-label {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text3);
+  font-weight: 600;
+  padding: 0 6px;
+  margin-bottom: 4px;
+}
+.sb-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  transition: all .18s;
+  margin-bottom: 1px;
+  border: 1px solid transparent;
+}
+.sb-item:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+.sb-item.active { background: var(--glow-accent); color: var(--accent); border-color: rgba(79,124,255,0.2); }
+.sb-item-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+
+.sb-bottom {
+  margin-top: auto;
+  padding: 14px 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.sb-theme-label { font-size: 12px; color: var(--text2); }
+.theme-toggle-pill {
+  width: 40px; height: 22px;
+  background: var(--border2);
+  border-radius: 11px;
+  cursor: pointer;
+  position: relative;
+  transition: background .2s;
+  flex-shrink: 0;
+  border: none;
+}
+.theme-toggle-pill::after {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  background: var(--accent);
+  border-radius: 50%;
+  top: 3px; left: 3px;
+  transition: transform .2s;
+}
+.theme-toggle-pill.on::after { transform: translateX(18px); background: #fff; }
+
+/* ── MAIN ── */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.main::-webkit-scrollbar { width: 4px; }
+.main::-webkit-scrollbar-track { background: var(--bg); }
+.main::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 4px; }
+
+/* TOP BAR */
+.topbar {
+  position: sticky;
+  top: 0;
+  background: rgba(11,13,20,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 28px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 50;
+  flex-shrink: 0;
+}
+.topbar-title { font-size: 15px; font-weight: 700; color: var(--text); }
+.topbar-actions { display: flex; gap: 8px; }
+.tbtn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: var(--card);
+  color: var(--text2);
+  font-size: 12px;
+  font-family: 'Syne', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s;
+}
+.tbtn:hover { background: var(--card2); color: var(--text); border-color: var(--border2); }
+.tbtn.primary { background: var(--accent); color: #fff; border-color: transparent; }
+.tbtn.primary:hover { opacity: .88; }
+
+/* CONTENT */
+.content { padding: 26px 28px 48px; flex: 1; }
+
+/* PAGE */
+.page { display: none; }
+.page.active { display: block; }
+
+/* GREETING */
+.greeting { margin-bottom: 24px; }
+.greeting-main { font-family: 'Instrument Serif', serif; font-size: 28px; font-weight: 400; margin-bottom: 4px; }
+.greeting-main span { font-style: italic; }
+.greeting-date { font-size: 13px; color: var(--text2); }
+
+/* STAT CARDS */
+.stat-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 16px; }
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px 20px 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.stat-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  opacity: 0;
+  transition: opacity .2s;
+}
+.stat-card:hover { border-color: var(--border2); }
+.stat-card:hover::after { opacity: 1; }
+.stat-card.p-card::after { background: var(--phy); }
+.stat-card.c-card::after { background: var(--che); }
+.stat-card.m-card::after { background: var(--mat); }
+.stat-card.s-card::after { background: var(--accent4); }
+.stat-label { font-size: 11px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+.stat-val { font-family: 'JetBrains Mono', monospace; font-size: 32px; font-weight: 600; line-height: 1; margin-bottom: 4px; }
+.stat-val.p-color { color: var(--phy); }
+.stat-val.c-color { color: var(--che); }
+.stat-val.m-color { color: var(--mat); }
+.stat-val.s-color { color: var(--accent4); }
+.stat-target { font-size: 12px; color: var(--text2); margin-bottom: 8px; }
+.mini-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+.mini-fill { height: 100%; border-radius: 2px; transition: width .5s; }
+
+/* SECTION TITLE */
+.sec-title { font-size: 11px; text-transform: uppercase; letter-spacing: 1.4px; color: var(--text2); font-weight: 600; margin-bottom: 14px; }
+
+/* COUNTDOWN PAGE */
+.cd-big-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 24px; }
+.cd-big-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.cd-big-card::before { content:''; position:absolute; top:0;left:0;right:0; height:2px; }
+.cd-big-card.cd-mains::before { background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+.cd-big-card.cd-adv::before { background: linear-gradient(90deg, var(--accent2), var(--accent5)); }
+.cd-big-card.cd-oct::before { background: linear-gradient(90deg, var(--accent3), var(--accent4)); }
+.cd-big-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text2); font-weight: 600; margin-bottom: 14px; }
+.cd-big-disp { display: flex; gap: 8px; justify-content: center; align-items: flex-end; flex-wrap: wrap; }
+.cd-unit { text-align: center; }
+.cd-num { font-family: 'JetBrains Mono', monospace; font-size: 36px; font-weight: 600; line-height: 1; }
+.cd-ulbl { font-size: 9px; color: var(--text3); margin-top: 4px; text-transform: uppercase; letter-spacing: .8px; }
+.cd-sep { font-family: 'JetBrains Mono', monospace; font-size: 30px; color: var(--text3); padding-bottom: 4px; }
+.cd-exam-date { font-size: 11px; color: var(--text2); margin-top: 12px; }
+
+/* CARDS row */
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 22px;
+}
+.card-sm {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+/* CALENDAR */
+.wk-block { margin-bottom: 14px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.wk-hdr {
+  background: var(--card2);
+  padding: 10px 16px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+.wk-title { font-size: 13px; font-weight: 600; }
+.wk-badge { font-size: 10.5px; padding: 3px 10px; border-radius: 20px; font-weight: 600; }
+.wk-badge.met { background: rgba(52,211,153,.12); color: var(--accent3); border:1px solid rgba(52,211,153,.25); }
+.wk-badge.miss { background: rgba(248,113,113,.12); color: var(--accent5); border:1px solid rgba(248,113,113,.25); }
+.wk-badge.pend { background: var(--border); color: var(--text2); }
+.wk-days { display: grid; grid-template-columns: repeat(7,1fr); }
+.day-cell { border-right: 1px solid var(--border); padding: 10px 6px; text-align: center; }
+.day-cell:last-child { border-right: none; }
+.day-cell.today-cell { background: rgba(79,124,255,0.06); }
+.day-nm { font-size: 9px; color: var(--text3); text-transform: uppercase; letter-spacing: .7px; margin-bottom: 3px; }
+.day-dt { font-size: 11px; color: var(--text2); margin-bottom: 7px; }
+.day-dt.is-today { color: var(--accent); font-weight: 700; }
+.day-inputs { display: flex; flex-direction: column; gap: 3px; }
+.di-row { display: flex; align-items: center; gap: 3px; }
+.ddot { width:5px; height:5px; border-radius:50%; flex-shrink:0; }
+.ddot.p { background: var(--phy); }
+.ddot.c { background: var(--che); }
+.ddot.m { background: var(--mat); }
+.ddot.i { background: var(--isi); }
+.d-inp {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  font-size: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  text-align: center;
+  padding: 3px 1px;
+  outline: none;
+  transition: border .18s;
+}
+.d-inp:focus { border-color: var(--accent); }
+.d-inp:disabled { opacity: .25; cursor: not-allowed; }
+.wk-sum {
+  background: rgba(255,255,255,0.02);
+  padding: 9px 16px;
+  border-top: 1px solid var(--border);
+  display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+}
+.wsitem { display:flex; align-items:center; gap:5px; font-size:11.5px; }
+.wsval { font-family:'JetBrains Mono',monospace; font-weight:600; }
+.wstgt { color: var(--text3); }
+
+/* PROGRESS BARS */
+.prog-row { margin-bottom: 14px; }
+.prog-hdr { display: flex; justify-content: space-between; margin-bottom: 5px; }
+.prog-lbl { font-size: 13px; font-weight: 500; }
+.prog-pct { font-family:'JetBrains Mono',monospace; font-size: 12px; font-weight:600; }
+.prog-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.prog-fill { height:100%; border-radius:3px; transition: width .5s; }
+
+/* SYLLABUS TABS */
+.tabs { display:flex; gap:5px; margin-bottom:18px; flex-wrap:wrap; }
+.tab {
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text2);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Syne', sans-serif;
+  transition: all .18s;
+}
+.tab.active { background: var(--glow-accent); color: var(--accent); border-color: rgba(79,124,255,0.3); }
+
+/* SYLLABUS CHAPTERS */
+.ch-block { margin-bottom: 12px; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+.ch-hdr {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 16px;
+  background: var(--card2);
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+  transition: background .18s;
+}
+.ch-hdr:hover { background: rgba(255,255,255,0.05); }
+.ch-hdr.open { border-bottom-color: var(--border); }
+.ch-num { font-family:'JetBrains Mono',monospace; font-size:11px; color: var(--text3); width:24px; flex-shrink:0; }
+.ch-name { font-size: 13px; font-weight: 600; flex:1; }
+.ch-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 600; flex-shrink:0; }
+.ch-tag.adv { background: rgba(157,127,255,0.15); color: var(--accent2); }
+.ch-tag.both { background: rgba(79,124,255,0.12); color: var(--accent); }
+.ch-prog { font-size: 11px; color: var(--text2); font-family:'JetBrains Mono',monospace; margin-right:6px; flex-shrink:0; }
+.ch-chev { color:var(--text3); font-size:12px; transition:transform .2s; flex-shrink:0; }
+.ch-hdr.open .ch-chev { transform: rotate(180deg); }
+.ch-mini-bar { width:60px; height:3px; background:var(--border); border-radius:2px; overflow:hidden; flex-shrink:0; }
+.ch-mini-fill { height:100%; border-radius:2px; }
+.topic-grid {
+  display: none;
+  padding: 12px 14px;
+  grid-template-columns: repeat(auto-fill, minmax(250px,1fr));
+  gap: 6px;
+  background: var(--card);
+}
+.topic-grid.open { display: grid; }
+.topic-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.topic-item:hover { border-color: var(--border2); background: rgba(255,255,255,0.02); }
+.topic-item.done { background: rgba(45,212,191,0.06); border-color: rgba(45,212,191,0.2); }
+.topic-item.revision { background: rgba(245,158,11,0.06); border-color: rgba(245,158,11,0.2); }
+.topic-cb {
+  width: 16px; height: 16px;
+  border: 1.5px solid var(--text3);
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px;
+  transition: all .15s;
+  margin-top: 1px;
+}
+.topic-item.done .topic-cb { background: var(--accent3); border-color: var(--accent3); color: #000; }
+.topic-item.revision .topic-cb { background: var(--accent4); border-color: var(--accent4); color: #000; }
+.topic-name { font-size: 12.5px; line-height: 1.4; flex: 1; }
+.topic-adv { font-size: 9px; color: var(--accent2); font-weight: 600; margin-top: 2px; }
+.rev-btn { font-size: 9.5px; color: var(--accent4); cursor:pointer; white-space:nowrap; padding: 1px 6px; border:1px solid rgba(245,158,11,0.3); border-radius:4px; background:none; font-family:'Syne',sans-serif; transition:all .15s; }
+.rev-btn:hover { background: rgba(245,158,11,0.1); }
+
+/* MOCK TESTS */
+.form-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(130px,1fr)); gap: 10px; margin-bottom: 16px; align-items: end; }
+.fg { display:flex; flex-direction:column; gap:5px; }
+.fl { font-size:10.5px; text-transform:uppercase; letter-spacing:.8px; color:var(--text2); font-weight:600; }
+.fi {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.04);
+  color: var(--text);
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border .18s;
+}
+.fi:focus { border-color: var(--accent); }
+.btn {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 8px;
+  font-family: 'Syne', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { opacity: .88; }
+.btn-danger { background: rgba(248,113,113,.12); color: var(--accent5); border:1px solid rgba(248,113,113,.25); }
+.btn-danger:hover { background: rgba(248,113,113,.22); }
+.btn-outline { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-outline:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+.mock-table { width:100%; border-collapse:collapse; font-size:13px; }
+.mock-table th { padding:9px 12px; text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--text3); border-bottom:1px solid var(--border); }
+.mock-table td { padding:11px 12px; border-bottom:1px solid var(--border); }
+.mock-table tr:last-child td { border-bottom:none; }
+.mock-table tr:hover td { background:rgba(255,255,255,0.02); }
+
+/* TODO */
+.todo-inp-row { display:flex; gap:8px; margin-bottom:14px; }
+.todo-inp { flex:1; padding:9px 14px; border:1px solid var(--border); border-radius:8px; background:rgba(255,255,255,0.04); color:var(--text); font-family:'Syne',sans-serif; font-size:13px; outline:none; transition:border .18s; }
+.todo-inp:focus { border-color: var(--accent); }
+.todo-list { display:flex; flex-direction:column; gap:6px; }
+.todo-item { display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--card2); border:1px solid var(--border); border-radius:9px; }
+.todo-item.done { opacity:.45; }
+.tcb { width:18px; height:18px; border:1.5px solid var(--text3); border-radius:5px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:10px; transition:all .15s; }
+.todo-item.done .tcb { background:var(--accent3); border-color:var(--accent3); color:#000; }
+.ttxt { flex:1; font-size:13px; }
+.todo-item.done .ttxt { text-decoration:line-through; }
+.tdel { background:none; border:none; color:var(--text3); cursor:pointer; font-size:16px; padding:0 2px; transition:color .15s; }
+.tdel:hover { color:var(--accent5); }
+.tdate { font-size:10px; color:var(--text3); }
+
+/* REVISION */
+.rev-list { display:flex; flex-direction:column; gap:8px; }
+.rev-item { display:flex; align-items:center; gap:12px; padding:11px 16px; background:var(--card2); border:1px solid rgba(245,158,11,0.18); border-radius:10px; }
+.rev-exam { font-size:10px; padding:2px 8px; border-radius:5px; font-weight:700; flex-shrink:0; }
+.rev-name { flex:1; font-size:13px; }
+.rev-ch { font-size:11px; color:var(--text2); }
+.rev-done-btn { font-size:11px; padding:4px 11px; border:1px solid var(--border2); border-radius:6px; background:none; color:var(--text2); cursor:pointer; font-family:'Syne',sans-serif; transition:all .15s; }
+.rev-done-btn:hover { background:rgba(45,212,191,0.1); color:var(--accent3); border-color:rgba(45,212,191,0.3); }
+
+/* PERFORMANCE */
+.chart-wrap { position:relative; width:100%; height:280px; margin-top:12px; }
+
+/* STREAK DISPLAY */
+.streak-big { text-align:center; padding:24px 20px; }
+.streak-fire { font-size:36px; margin-bottom:6px; }
+.streak-num { font-family:'Instrument Serif',serif; font-size:64px; color:var(--accent4); line-height:1; }
+.streak-label { font-size:13px; color:var(--text2); margin-top:6px; }
+
+/* BADGE */
+.badge { font-size:10.5px; padding:2px 9px; border-radius:6px; font-weight:700; display:inline-block; }
+.badge-blue { background:rgba(79,124,255,.14); color:var(--accent); }
+.badge-purple { background:rgba(157,127,255,.14); color:var(--accent2); }
+.badge-green { background:rgba(52,211,153,.14); color:var(--accent3); }
+.badge-orange { background:rgba(245,158,11,.14); color:var(--accent4); }
+.badge-red { background:rgba(248,113,113,.14); color:var(--accent5); }
+
+/* INFO BOX */
+.info-box { background:rgba(79,124,255,0.08); border:1px solid rgba(79,124,255,0.2); border-radius:10px; padding:11px 15px; font-size:13px; color:var(--text2); margin-bottom:16px; }
+.info-box strong { color:var(--accent); }
+
+/* EMPTY */
+.empty { text-align:center; padding:32px; color:var(--text3); font-size:13px; line-height:1.7; }
+
+/* MISC */
+.mono { font-family:'JetBrains Mono',monospace; }
+.mt8 { margin-top:8px; }
+.mt16 { margin-top:16px; }
+.mt20 { margin-top:20px; }
+.mb16 { margin-bottom:16px; }
+.fw7 { font-weight:700; }
+.text-xs { font-size:11px; }
+.text-muted { color:var(--text2); }
+
+/* LIGHT MODE - intentionally removed, dark only */
+
+@media (max-width:900px) {
+  :root { --sidebar-w: 0px; }
+  .sidebar { display:none; }
+  .cd-big-grid { grid-template-columns:1fr; }
+  .stat-grid { grid-template-columns:1fr 1fr; }
+  .row2,.row3 { grid-template-columns:1fr; }
+}
+
+/* PWA INSTALL BANNER */
+#pwa-banner {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: 14px;
+  padding: 14px 18px;
+  z-index: 9999;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  max-width: 300px;
+  animation: slideUp .3s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity:0; }
+  to { transform: translateY(0); opacity:1; }
+}
+#pwa-banner.show { display: block; }
+.pwa-banner-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+.pwa-banner-sub { font-size: 12px; color: var(--text2); margin-bottom: 12px; line-height: 1.5; }
+.pwa-banner-btns { display: flex; gap: 8px; }
+.pwa-install-btn {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity .18s;
+}
+.pwa-install-btn:hover { opacity: .88; }
+.pwa-dismiss-btn {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--text2);
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all .18s;
+}
+.pwa-dismiss-btn:hover { background: var(--border); color: var(--text); }
+
+/* Topbar install chip */
+#pwa-topbar-btn {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(79,124,255,0.4);
+  background: rgba(79,124,255,0.1);
+  color: var(--accent);
+  font-family: 'Syne', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .18s;
+  animation: pulse 2s infinite;
+}
+#pwa-topbar-btn.show { display: flex; }
+#pwa-topbar-btn:hover { background: rgba(79,124,255,0.2); }
+@keyframes pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(79,124,255,0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(79,124,255,0); }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<div class="sidebar" id="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-top">
+      <span class="sb-icon">⚡</span>
+      <span class="sb-name">JEE Command</span>
+    </div>
+    <div class="sb-sub">Class 12 · 2026–27</div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Overview</div>
+    <div class="sb-item active" data-page="dashboard" onclick="nav(this,'dashboard')">
+      <span class="sb-item-icon">🏠</span> Dashboard
+    </div>
+    <div class="sb-item" data-page="countdown" onclick="nav(this,'countdown')">
+      <span class="sb-item-icon">⏳</span> Countdown
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Tracking</div>
+    <div class="sb-item" data-page="calendar" onclick="nav(this,'calendar')">
+      <span class="sb-item-icon">📅</span> Question Tracker
+    </div>
+    <div class="sb-item" data-page="isi-tracker" onclick="nav(this,'isi-tracker')">
+      <span class="sb-item-icon">🎯</span> ISI/CMI Daily
+    </div>
+    <div class="sb-item" data-page="todo" onclick="nav(this,'todo')">
+      <span class="sb-item-icon">✅</span> Daily To-Do
+    </div>
+    <div class="sb-item" data-page="streak" onclick="nav(this,'streak')">
+      <span class="sb-item-icon">🔥</span> Streak
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Syllabus</div>
+    <div class="sb-item" data-page="jee-syllabus" onclick="nav(this,'jee-syllabus')">
+      <span class="sb-item-icon">📘</span> JEE Syllabus
+    </div>
+    <div class="sb-item" data-page="isi-syllabus" onclick="nav(this,'isi-syllabus')">
+      <span class="sb-item-icon">📗</span> ISI & CMI
+    </div>
+  </div>
+
+  <div class="sb-section">
+    <div class="sb-section-label">Analysis</div>
+    <div class="sb-item" data-page="mocks" onclick="nav(this,'mocks')">
+      <span class="sb-item-icon">📝</span> Mock Tests
+    </div>
+    <div class="sb-item" data-page="revision" onclick="nav(this,'revision')">
+      <span class="sb-item-icon">🔄</span> Revision Schedule
+    </div>
+    <div class="sb-item" data-page="performance" onclick="nav(this,'performance')">
+      <span class="sb-item-icon">📈</span> Performance
+    </div>
+  </div>
+
+  <div class="sb-bottom"><span style="font-size:11px;color:var(--text3);">⚡ JEE 2027 · Stay Focused</span></div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="topbar-title">Dashboard</span>
+    <div class="topbar-actions">
+      <button id="pwa-topbar-btn" onclick="installPWA()">⬇ Install App</button>
+      <button class="tbtn" onclick="triggerImport()">📥 Import</button>
+      <button class="tbtn primary" onclick="exportData()">🔄 Export Backup</button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="greeting">
+        <div class="greeting-main" id="greeting-text">Good morning, <span>Champion!</span> 👋</div>
+        <div class="greeting-date" id="greeting-date"></div>
+      </div>
+
+      <!-- single big countdown for Oct 31 2026 -->
+      <div style="margin-bottom:20px;">
+        <div class="sec-title">⏰ Syllabus Deadline</div>
+        <div class="card" style="border-top:2px solid var(--accent3);">
+          <div style="text-align:center;margin-bottom:16px;font-size:12px;color:var(--text2);text-transform:uppercase;letter-spacing:1.2px;font-weight:600;">Time until October 31, 2026</div>
+          <div style="display:flex;gap:12px;justify-content:center;align-items:flex-end;flex-wrap:wrap;" id="dash-cd-oct"></div>
+          <div style="text-align:center;margin-top:10px;font-size:11px;color:var(--text2);">Finish your entire syllabus by this date!</div>
+        </div>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card p-card">
+          <div class="stat-label">This week · Physics</div>
+          <div class="stat-val p-color" id="d-phy">0</div>
+          <div class="stat-target">/<span id="d-phy-t">150</span> target</div>
+          <div class="mini-bar"><div class="mini-fill" id="d-phy-bar" style="width:0%;background:var(--phy)"></div></div>
+        </div>
+        <div class="stat-card c-card">
+          <div class="stat-label">This week · Chemistry</div>
+          <div class="stat-val c-color" id="d-che">0</div>
+          <div class="stat-target">/<span>150</span> target</div>
+          <div class="mini-bar"><div class="mini-fill" id="d-che-bar" style="width:0%;background:var(--che)"></div></div>
+        </div>
+        <div class="stat-card m-card">
+          <div class="stat-label">This week · Maths</div>
+          <div class="stat-val m-color" id="d-mat">0</div>
+          <div class="stat-target">/<span>200</span> target</div>
+          <div class="mini-bar"><div class="mini-fill" id="d-mat-bar" style="width:0%;background:var(--mat)"></div></div>
+        </div>
+        <div class="stat-card s-card">
+          <div class="stat-label">🔥 Current Streak</div>
+          <div class="stat-val s-color" id="d-streak">0</div>
+          <div class="stat-target">days in a row</div>
+          <div class="mini-bar"><div class="mini-fill" id="d-streak-bar" style="width:0%;background:var(--accent4)"></div></div>
+        </div>
+      </div>
+
+      <div class="stat-grid" style="margin-top:0;">
+        <div class="stat-card">
+          <div class="stat-label">JEE Syllabus Done</div>
+          <div class="stat-val" id="d-jee-pct" style="font-size:28px;">0%</div>
+          <div class="stat-target" id="d-jee-cnt">chapters completed</div>
+          <div class="mini-bar"><div class="mini-fill" id="d-jee-bar" style="width:0%;background:var(--accent)"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">ISI Syllabus Done</div>
+          <div class="stat-val" id="d-isi-pct" style="font-size:28px;">0%</div>
+          <div class="stat-target" id="d-isi-cnt">chapters completed</div>
+          <div class="mini-bar"><div class="mini-fill" id="d-isi-bar" style="width:0%;background:var(--isi)"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">CMI Syllabus Done</div>
+          <div class="stat-val" id="d-cmi-pct" style="font-size:28px;">0%</div>
+          <div class="stat-target" id="d-cmi-cnt">chapters completed</div>
+          <div class="mini-bar"><div class="mini-fill" id="d-cmi-bar" style="width:0%;background:var(--accent2)"></div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Mock Tests Taken</div>
+          <div class="stat-val" id="d-mocks" style="font-size:28px;">0</div>
+          <div class="stat-target">total tests logged</div>
+          <div class="mini-bar"><div class="mini-fill" id="d-mocks-bar" style="width:0%;background:var(--accent5)"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ COUNTDOWN ═══ -->
+    <div class="page" id="page-countdown">
+      <div class="greeting-main" style="margin-bottom:6px;">Exam <span style="font-style:italic;color:var(--accent2)">Countdowns</span></div>
+      <div class="greeting-date" style="margin-bottom:24px;">Live ticking — self-adjusting to real time always</div>
+      <div class="cd-big-grid">
+        <div class="cd-big-card cd-mains">
+          <div class="cd-big-label">JEE Mains 2027</div>
+          <div class="cd-big-disp" id="cd-mains"></div>
+          <div class="cd-exam-date">Session 1 · January 2027</div>
+        </div>
+        <div class="cd-big-card cd-adv">
+          <div class="cd-big-label">JEE Advanced 2027</div>
+          <div class="cd-big-disp" id="cd-adv"></div>
+          <div class="cd-exam-date">May 2027 · Target IIT</div>
+        </div>
+        <div class="cd-big-card cd-oct">
+          <div class="cd-big-label">Syllabus Deadline</div>
+          <div class="cd-big-disp" id="cd-oct"></div>
+          <div class="cd-exam-date">October 31, 2026 · Finish Everything!</div>
+        </div>
+      </div>
+      <div class="info-box">
+        <strong>How these work:</strong> These timers always calculate from the exact current moment to the target date. Every second they update. Whether you open this app today or in 3 months — the countdown will always be accurate.
+      </div>
+    </div>
+
+    <!-- ═══ QUESTION TRACKER ═══ -->
+    <div class="page" id="page-calendar">
+      <div class="greeting-main" style="margin-bottom:5px;">Question <em style="font-style:italic;color:var(--accent2)">Tracker</em></div>
+      <div class="greeting-date" style="margin-bottom:18px;">Log daily questions Apr 27 2026 → Oct 31 2026 · Weekly targets: 150P · 150C · 200M</div>
+      <div class="info-box"><strong>How to enter questions:</strong> Under each date you will see 3 small input boxes — <span style="color:var(--phy)">P</span> (Physics), <span style="color:var(--che)">C</span> (Chemistry), <span style="color:var(--mat)">M</span> (Maths). Click any box and type the number of questions you solved that day. Future dates are locked. Weekly totals appear at the bottom of each week. <strong style="color:var(--accent3)">Green = target met</strong>, <strong style="color:var(--accent5)">Red = missed</strong>.</div>
+      <div id="calendar-container"></div>
+    </div>
+
+    <!-- ═══ ISI/CMI DAILY TRACKER ═══ -->
+    <div class="page" id="page-isi-tracker">
+      <div class="greeting-main" style="margin-bottom:5px;">ISI / CMI <em style="font-style:italic;color:var(--isi)">Daily Tracker</em></div>
+      <div class="greeting-date" style="margin-bottom:18px;">Target: 1 ISI/CMI question every day · Apr 27 → Oct 31 2026</div>
+      <div class="info-box"><strong>Daily goal:</strong> Solve at least <strong style="color:var(--isi)">1 ISI/CMI problem</strong> every day to build problem-solving instinct. Log how many you did each day.</div>
+      <div id="isi-calendar-container"></div>
+    </div>
+
+    <!-- ═══ JEE SYLLABUS ═══ -->
+    <div class="page" id="page-jee-syllabus">
+      <div class="greeting-main" style="margin-bottom:5px;">JEE <em style="font-style:italic;color:var(--accent2)">Syllabus</em></div>
+      <div class="greeting-date" style="margin-bottom:18px;">Complete topic-wise syllabus · Click to mark done · 📌 to mark for revision</div>
+      <div class="tabs" id="jee-tabs">
+        <button class="tab active" onclick="switchJeeTab('maths',this)">∑ Mathematics</button>
+        <button class="tab" onclick="switchJeeTab('physics',this)">⚡ Physics</button>
+        <button class="tab" onclick="switchJeeTab('chemistry',this)">🧪 Chemistry</button>
+      </div>
+      <div class="card mb16" id="jee-overall-card"></div>
+      <div id="jee-syllabus-body"></div>
+    </div>
+
+    <!-- ═══ ISI SYLLABUS ═══ -->
+    <div class="page" id="page-isi-syllabus">
+      <div class="greeting-main" style="margin-bottom:5px;">ISI & CMI <em style="font-style:italic;color:var(--isi)">Syllabus</em></div>
+      <div class="greeting-date" style="margin-bottom:18px;">Detailed topic-wise tracker for ISI B.Stat/B.Math and CMI entrance</div>
+      <div class="tabs" id="isi-tabs">
+        <button class="tab active" onclick="switchIsiTab('isi_math',this)">ISI Mathematics</button>
+        <button class="tab" onclick="switchIsiTab('isi_stat',this)">ISI Statistics</button>
+        <button class="tab" onclick="switchIsiTab('cmi_math',this)">CMI Mathematics</button>
+        <button class="tab" onclick="switchIsiTab('cmi_cs',this)">CMI CS Foundations</button>
+      </div>
+      <div class="card mb16" id="isi-overall-card"></div>
+      <div id="isi-syllabus-body"></div>
+    </div>
+
+    <!-- ═══ MOCK TESTS ═══ -->
+    <div class="page" id="page-mocks">
+      <div class="greeting-main" style="margin-bottom:5px;">Mock Test <em style="font-style:italic;color:var(--accent2)">Tracker</em></div>
+      <div class="greeting-date" style="margin-bottom:18px;">Log every mock. Track your improvement over time.</div>
+      <div class="card mb16">
+        <div class="sec-title">Add New Test</div>
+        <div class="form-grid">
+          <div class="fg"><label class="fl">Date</label><input class="fi" type="date" id="mk-date"></div>
+          <div class="fg"><label class="fl">Test Name</label><input class="fi" type="text" id="mk-name" placeholder="e.g. Allen FT-3"></div>
+          <div class="fg"><label class="fl">Type</label>
+            <select class="fi" id="mk-type">
+              <option>JEE Mains</option><option>JEE Advanced</option><option>ISI</option><option>CMI</option><option>Other</option>
+            </select>
+          </div>
+          <div class="fg"><label class="fl" style="color:var(--phy)">Physics</label><input class="fi" type="number" id="mk-phy" placeholder="Marks" min="0"></div>
+          <div class="fg"><label class="fl" style="color:var(--che)">Chemistry</label><input class="fi" type="number" id="mk-che" placeholder="Marks" min="0"></div>
+          <div class="fg"><label class="fl" style="color:var(--mat)">Maths</label><input class="fi" type="number" id="mk-mat" placeholder="Marks" min="0"></div>
+          <div class="fg"><label class="fl">Max Marks</label><input class="fi" type="number" id="mk-max" placeholder="300" value="300"></div>
+          <div class="fg" style="justify-content:flex-end;"><button class="btn btn-primary" onclick="addMock()">Add Test</button></div>
+        </div>
+      </div>
+      <div class="card"><div class="sec-title">Test History</div><div id="mock-wrap"></div></div>
+    </div>
+
+    <!-- ═══ TODO ═══ -->
+    <div class="page" id="page-todo">
+      <div class="greeting-main" style="margin-bottom:5px;">Daily <em style="font-style:italic;color:var(--accent2)">To-Do</em></div>
+      <div class="greeting-date" id="todo-date-disp" style="margin-bottom:18px;"></div>
+      <div class="row2 mb16">
+        <div class="card">
+          <div class="sec-title">Add Task</div>
+          <div class="todo-inp-row">
+            <input class="todo-inp" id="todo-inp" placeholder="e.g. Solve 20 thermodynamics problems" onkeydown="if(event.key==='Enter')addTodo()">
+            <button class="btn btn-primary" onclick="addTodo()">Add</button>
+          </div>
+          <div style="display:flex;gap:8px;"><button class="btn btn-outline" style="font-size:12px;padding:6px 12px;" onclick="clearDone()">Clear Done</button></div>
+        </div>
+        <div class="card">
+          <div class="sec-title">Today's Questions</div>
+          <div id="todo-today-qs" style="font-size:13px;color:var(--text2);"></div>
+        </div>
+      </div>
+      <div class="card"><div class="sec-title" style="margin-bottom:12px;">Tasks</div><div class="todo-list" id="todo-list"></div></div>
+    </div>
+
+    <!-- ═══ STREAK ═══ -->
+    <div class="page" id="page-streak">
+      <div class="greeting-main" style="margin-bottom:5px;">Study <em style="font-style:italic;color:var(--accent4)">Streak</em></div>
+      <div class="greeting-date" style="margin-bottom:24px;">Log at least 1 question daily to keep your streak alive</div>
+      <div class="row3">
+        <div class="card streak-big">
+          <div class="streak-fire">🔥</div>
+          <div class="streak-num" id="streak-big-num">0</div>
+          <div class="streak-label">Day streak</div>
+        </div>
+        <div class="card" style="padding:24px;">
+          <div class="sec-title">Weekly Progress</div>
+          <div id="streak-weekly"></div>
+        </div>
+        <div class="card" style="padding:24px;">
+          <div class="sec-title">All-time Stats</div>
+          <div id="streak-alltime" style="font-size:13px;color:var(--text2);line-height:2;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REVISION ═══ -->
+    <div class="page" id="page-revision">
+      <div class="greeting-main" style="margin-bottom:5px;">Revision <em style="font-style:italic;color:var(--accent4)">Schedule</em></div>
+      <div class="greeting-date" style="margin-bottom:18px;">Topics you marked for revision — clear them as you revise</div>
+      <div class="card"><div id="revision-body"></div></div>
+    </div>
+
+    <!-- ═══ PERFORMANCE ═══ -->
+    <div class="page" id="page-performance">
+      <div class="greeting-main" style="margin-bottom:5px;">Performance <em style="font-style:italic;color:var(--accent2)">Graph</em></div>
+      <div class="greeting-date" style="margin-bottom:18px;">Weekly question attempts vs targets · Mock test score trend</div>
+      <div class="card mb16">
+        <div class="sec-title">Weekly Questions vs Target</div>
+        <div class="chart-wrap"><canvas id="chart-weekly"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="sec-title">Mock Test Score Trend</div>
+        <div class="chart-wrap"><canvas id="chart-mocks"></canvas></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+// ═══════════════════════════════════════
+// DATA & STATE
+// ═══════════════════════════════════════
+const STORAGE_KEY = 'jee_cmd_2027_v1';
+const TARGETS = { phy:150, che:150, mat:200, isi:1 };
+const START_DATE = new Date(2026,3,20);  // Apr 20 2026 (Week 0 warmup)
+const END_DATE   = new Date(2026,9,31);  // Oct 31 2026
+const JEE_MAINS  = new Date(2027,0,20);  // Jan 20 2027 (approx)
+const JEE_ADV    = new Date(2027,4,25);  // May 25 2027 (approx)
+
+let S = {
+  cal: {},        // "YYYY-MM-DD": {p,c,m}
+  isiCal: {},     // "YYYY-MM-DD": {q}
+  jeeSyl: {},     // "id": "done"|"revision"|""
+  isiSyl: {},
+  mocks: [],
+  todos: [],
+  theme: 'dark',
+};
+
+function save() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch(e) {}
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      S = Object.assign(S, parsed);
+    }
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// FULL JEE SYLLABUS FROM PDF
+// ═══════════════════════════════════════
+const JEE_DATA = {
+  maths: [
+    { ch:1, name:"Sets, Relations and Functions", tag:"both", topics:[
+      {t:"Sets and their representations; types of sets (empty, finite, infinite)"},
+      {t:"Algebra of sets: union, intersection, complement, difference, symmetric difference"},
+      {t:"De-Morgan's laws; power set; Cartesian product"},
+      {t:"Relations: domain, codomain, equivalence relations"},
+      {t:"Functions as mappings: domain, codomain, range"},
+      {t:"Types of functions: injective, surjective, invertible"},
+      {t:"Even and odd functions"},
+      {t:"Special functions: polynomial, trig, exponential, logarithmic, absolute value, GIF"},
+      {t:"Composition of functions; sum, difference, product of functions"},
+    ]},
+    { ch:2, name:"Complex Numbers and Quadratic Equations", tag:"both", topics:[
+      {t:"Complex numbers as ordered pairs; a+ib form; Argand diagram"},
+      {t:"Algebra: addition, multiplication, conjugation"},
+      {t:"Modulus and argument; polar representation"},
+      {t:"Triangle inequality; geometric interpretations"},
+      {t:"Cube roots of unity"},
+      {t:"Fundamental theorem of algebra (statement only)"},
+      {t:"Quadratic equations in real and complex systems"},
+      {t:"Relations between roots and coefficients; nature of roots"},
+      {t:"Formation of quadratic with given roots; symmetric functions of roots"},
+    ]},
+    { ch:3, name:"Sequences, Series, Logarithms, P&C, Binomial", tag:"both", topics:[
+      {t:"Arithmetic progressions: nth term, sum; arithmetic mean"},
+      {t:"Geometric progressions: nth term, sum finite/infinite; geometric mean"},
+      {t:"Insertion of AM and GM between two numbers"},
+      {t:"Relation between A.M. and G.M."},
+      {t:"Sum of first n natural numbers, squares and cubes"},
+      {t:"Logarithms and their properties"},
+      {t:"Fundamental principle of counting"},
+      {t:"Permutations P(n,r); arrangements"},
+      {t:"Combinations C(n,r); selections; applications"},
+      {t:"Binomial theorem for positive integral index"},
+      {t:"General term and middle term; properties of binomial coefficients"},
+    ]},
+    { ch:4, name:"Matrices and Determinants", tag:"both", topics:[
+      {t:"Matrices: definition, types, equality; algebra (add, scalar mult, matrix mult)"},
+      {t:"Transpose; symmetric and skew-symmetric matrices"},
+      {t:"Elementary row and column transformations"},
+      {t:"Determinant of square matrix (up to order 3); evaluation"},
+      {t:"Area of triangle using determinant"},
+      {t:"Adjoint and inverse of square matrix (up to order 3)"},
+      {t:"Properties of matrix operations"},
+      {t:"Test of consistency; solution of linear equations (2 or 3 vars) using matrices"},
+    ]},
+    { ch:5, name:"Trigonometry", tag:"both", topics:[
+      {t:"Trigonometric functions: definitions, periodicity, graphs"},
+      {t:"Addition and subtraction formulae"},
+      {t:"Multiple angles and sub-multiple angles formulae"},
+      {t:"Trigonometric identities"},
+      {t:"General solution of trigonometric equations"},
+      {t:"Inverse trig functions: principal value, domain, range"},
+      {t:"Elementary properties of inverse trig functions"},
+    ]},
+    { ch:6, name:"Probability and Statistics", tag:"both", topics:[
+      {t:"Measures of central tendency: mean, median, mode"},
+      {t:"Measures of dispersion: mean deviation, standard deviation, variance"},
+      {t:"Analysis of frequency distributions with same mean but different variance"},
+      {t:"Random experiments; sample space; types of events"},
+      {t:"Addition and multiplication rules of probability"},
+      {t:"Conditional probability; independence of events"},
+      {t:"Total probability theorem; Bayes' theorem"},
+      {t:"Probability using permutations and combinations"},
+      {t:"Random variable; probability distribution; mean and variance"},
+    ]},
+    { ch:7, name:"Co-ordinate Geometry — 2D", tag:"both", topics:[
+      {t:"Cartesian system; distance formula; section formula; shift of origin"},
+      {t:"Locus and its equation; slope of a line"},
+      {t:"Straight lines: various forms (slope-intercept, intercept, normal)"},
+      {t:"Angle between two lines; conditions for concurrence; distance of point from line"},
+      {t:"Centroid, orthocentre, incentre, circumcentre of a triangle"},
+      {t:"Angle bisectors of two lines"},
+      {t:"Circle: standard and general form, centre, radius; intersection with line/circle"},
+      {t:"Tangent, normal, chord; parametric equations of a circle"},
+      {t:"Parabola: standard form, focus, directrix, parametric equations, tangent, normal"},
+      {t:"Ellipse: standard form, foci, directrices, eccentricity, tangent, normal"},
+      {t:"Hyperbola: standard form, foci, directrices, eccentricity, tangent, normal"},
+      {t:"Locus problems"},
+    ]},
+    { ch:8, name:"Three-Dimensional Geometry", tag:"both", topics:[
+      {t:"Coordinates in space; distance between two points; section formula"},
+      {t:"Direction cosines and direction ratios; angle between two lines"},
+      {t:"Equation of a straight line in space"},
+      {t:"Skew lines; shortest distance between two skew lines"},
+      {t:"Equation of a plane; distance of a point from a plane"},
+      {t:"Angle between two planes; angle between a line and a plane"},
+      {t:"Coplanar lines"},
+    ]},
+    { ch:9, name:"Vector Algebra", tag:"both", topics:[
+      {t:"Vectors and scalars; addition of vectors; scalar multiplication"},
+      {t:"Components of a vector in 2D and 3D"},
+      {t:"Dot product (scalar product) and geometric interpretation"},
+      {t:"Cross product (vector product) and geometric interpretation"},
+      {t:"Scalar triple product; vector triple product and geometrical interpretations"},
+    ]},
+    { ch:10, name:"Limits, Continuity and Differentiability", tag:"both", topics:[
+      {t:"Real-valued functions; algebra of functions"},
+      {t:"Graphs of simple functions (polynomial, rational, trig, log, exponential)"},
+      {t:"Limit of a function at a real number; standard limits"},
+      {t:"L'Hôpital's rule for evaluation of limits"},
+      {t:"Continuity of a function; continuity of composite functions"},
+      {t:"Intermediate value property of continuous functions"},
+      {t:"Derivative: definition; derivatives of sum, difference, product, quotient"},
+      {t:"Chain rule; derivatives of polynomial, rational, trig, inverse trig, exp, log"},
+      {t:"Derivatives of composite and implicit functions; derivatives up to order two"},
+      {t:"Tangents and normals; geometric interpretation of derivatives"},
+      {t:"Monotonic (increasing/decreasing) functions"},
+      {t:"Maxima and minima of functions of one variable"},
+      {t:"Rolle's theorem and Lagrange's Mean Value theorem"},
+    ]},
+    { ch:11, name:"Integral Calculus and Differential Equations", tag:"both", topics:[
+      {t:"Integration as inverse of differentiation; indefinite integrals of standard functions"},
+      {t:"Integration by substitution"},
+      {t:"Integration by parts"},
+      {t:"Integration by partial fractions"},
+      {t:"Integration using trigonometric identities"},
+      {t:"Standard integral forms (rational and irrational types)"},
+      {t:"Definite integrals as limits of sums; fundamental theorem"},
+      {t:"Properties of definite integrals"},
+      {t:"Determination of areas bounded by simple curves"},
+      {t:"Formation of ordinary differential equations"},
+      {t:"Solution by separation of variables"},
+      {t:"Homogeneous differential equations (first order, first degree)"},
+      {t:"Linear first-order DE: dy/dx + p(x)y = q(x)"},
+    ]},
+  ],
+  physics: [
+    { ch:1, name:"Units, Dimensions & Experimental Skills", tag:"both", topics:[
+      {t:"Units of measurement; system of units; SI units"},
+      {t:"Fundamental and derived units; least count; significant figures"},
+      {t:"Errors in measurement: types, propagation, calculation"},
+      {t:"Dimensional analysis and applications"},
+      {t:"Vernier callipers and screw gauge experiments"},
+      {t:"Simple pendulum — dissipation of energy; determination of g"},
+      {t:"Young's modulus using metallic wire"},
+      {t:"Surface tension by capillary rise; coefficient of viscosity; speed of sound"},
+      {t:"Specific heat capacity; resistivity; focal length experiments"},
+      {t:"I-V characteristics of p-n junction; Zener diode"},
+    ]},
+    { ch:2, name:"Kinematics", tag:"both", topics:[
+      {t:"Frame of reference; position, displacement, distance"},
+      {t:"Speed and velocity; uniform and non-uniform motion"},
+      {t:"Average speed and instantaneous velocity"},
+      {t:"Uniformly accelerated motion; equations of motion"},
+      {t:"Velocity-time and position-time graphs"},
+      {t:"Relative velocity"},
+      {t:"Motion in a plane; projectile motion (range, time of flight, max height)"},
+      {t:"Uniform circular motion; angular velocity; centripetal acceleration"},
+    ]},
+    { ch:3, name:"Laws of Motion", tag:"both", topics:[
+      {t:"Force and inertia; Newton's first law of motion"},
+      {t:"Momentum; Newton's second law; impulse"},
+      {t:"Newton's third law of motion"},
+      {t:"Law of conservation of linear momentum and applications"},
+      {t:"Equilibrium of concurrent forces"},
+      {t:"Static and kinetic friction; laws of friction; rolling friction"},
+      {t:"Inertial and uniformly accelerated frames of reference"},
+      {t:"Dynamics of uniform circular motion; centripetal force"},
+      {t:"Vehicle on level circular road; vehicle on banked road"},
+    ]},
+    { ch:4, name:"Work, Energy and Power", tag:"both", topics:[
+      {t:"Work done by constant and variable forces"},
+      {t:"Kinetic energy and potential energy; work-energy theorem"},
+      {t:"Power"},
+      {t:"Potential energy of a spring"},
+      {t:"Conservation of mechanical energy; conservative and non-conservative forces"},
+      {t:"Motion in a vertical circle"},
+      {t:"Elastic and inelastic collisions in one and two dimensions"},
+    ]},
+    { ch:5, name:"Rotational Motion", tag:"both", topics:[
+      {t:"Centre of mass of two-particle system and rigid body"},
+      {t:"Impulse; basic concepts of rotational motion"},
+      {t:"Moment of a force; torque; angular momentum"},
+      {t:"Conservation of angular momentum and applications"},
+      {t:"Moment of inertia; radius of gyration"},
+      {t:"MI for ring, disc, rod, sphere, cylinder"},
+      {t:"Parallel and perpendicular axes theorems"},
+      {t:"Equilibrium of rigid bodies; equations of rotational motion"},
+      {t:"Dynamics of rigid bodies with fixed axis of rotation"},
+      {t:"Rolling without slipping of rings, cylinders and spheres"},
+      {t:"Collision of point masses with rigid bodies"},
+      {t:"Forced and damped oscillations (1D); resonance", adv:true},
+    ]},
+    { ch:6, name:"Gravitation", tag:"both", topics:[
+      {t:"Universal law of gravitation; gravitational constant G"},
+      {t:"Gravitational potential energy and gravitational potential"},
+      {t:"Acceleration due to gravity (g) and variation with altitude/depth"},
+      {t:"Kepler's laws of planetary motion"},
+      {t:"Geostationary orbits"},
+      {t:"Escape velocity"},
+      {t:"Motion of planets and satellites in circular orbits; orbital velocity"},
+      {t:"Time period and energy of a satellite"},
+    ]},
+    { ch:7, name:"Properties of Solids and Fluids", tag:"both", topics:[
+      {t:"Elastic behaviour; stress-strain; Hooke's law"},
+      {t:"Young's modulus; bulk modulus; modulus of rigidity"},
+      {t:"Pressure in a fluid; Pascal's law; buoyancy"},
+      {t:"Viscosity; Stokes' law; terminal velocity; streamline and turbulent flow"},
+      {t:"Equation of continuity; Bernoulli's theorem and applications"},
+      {t:"Surface energy and surface tension; angle of contact"},
+      {t:"Excess pressure across a curved surface"},
+      {t:"Applications: drops, bubbles and capillary rise"},
+    ]},
+    { ch:8, name:"Thermal Physics and Thermodynamics", tag:"both", topics:[
+      {t:"Heat and temperature; thermal expansion of solids, liquids, gases"},
+      {t:"Specific heat capacity; calorimetry; change of state; latent heat"},
+      {t:"Heat conduction in one dimension; convection; radiation; Newton's law of cooling"},
+      {t:"Ideal gas laws; specific heats Cv and Cp; isothermal and adiabatic processes"},
+      {t:"Equivalence of heat and work"},
+      {t:"Zeroth law; thermal equilibrium; concept of temperature"},
+      {t:"First law: internal energy, work, enthalpy"},
+      {t:"Second law: reversible and irreversible processes; entropy"},
+      {t:"Carnot engine and its efficiency"},
+      {t:"Blackbody radiation: Kirchhoff's law; Wien's law; Stefan's law"},
+    ]},
+    { ch:9, name:"Kinetic Theory of Gases", tag:"both", topics:[
+      {t:"Equation of state of a perfect gas; work done on compressing a gas"},
+      {t:"Kinetic theory assumptions; concept of pressure"},
+      {t:"Kinetic interpretation of temperature; RMS speed"},
+      {t:"Average, RMS and most probable speeds"},
+      {t:"Degrees of freedom; law of equipartition of energy"},
+      {t:"Applications to specific heat capacities of gases"},
+      {t:"Mean free path; Avogadro's number"},
+      {t:"Law of partial pressures; diffusion of gases"},
+    ]},
+    { ch:10, name:"Oscillations and Waves", tag:"both", topics:[
+      {t:"Periodic motion: time period, frequency, displacement as function of time"},
+      {t:"Simple harmonic motion (SHM): equation, phase"},
+      {t:"Linear and angular SHM"},
+      {t:"Oscillations of a spring: restoring force, force constant"},
+      {t:"Energy in SHM: kinetic and potential energies"},
+      {t:"Simple pendulum: derivation of time period"},
+      {t:"Wave motion: longitudinal and transverse waves; speed"},
+      {t:"Displacement relation for progressive wave; superposition principle"},
+      {t:"Reflection of waves; standing waves in strings and organ pipes"},
+      {t:"Fundamental mode and harmonics; beats"},
+      {t:"Speed of sound in gases; Doppler effect"},
+    ]},
+    { ch:11, name:"Electrostatics", tag:"both", topics:[
+      {t:"Electric charge; conservation; Coulomb's law; superposition principle"},
+      {t:"Continuous charge distribution"},
+      {t:"Electric field: due to point charge; electric field lines"},
+      {t:"Electric dipole; field due to dipole; torque on dipole"},
+      {t:"Electric flux; Gauss's law — applications (wire, plane sheet, spherical shell)"},
+      {t:"Electric potential: due to point charge, dipole, system of charges"},
+      {t:"Potential difference; equipotential surfaces; electrical PE"},
+      {t:"Conductors and insulators; dielectrics and electric polarization"},
+      {t:"Capacitors and capacitance; parallel plate capacitor (with/without dielectric)"},
+      {t:"Capacitors in series and parallel; energy stored in capacitor"},
+    ]},
+    { ch:12, name:"Current Electricity", tag:"both", topics:[
+      {t:"Electric current; drift velocity; mobility"},
+      {t:"Ohm's law; electrical resistance; I-V characteristics (Ohmic and non-Ohmic)"},
+      {t:"Electrical energy and power; resistivity and conductivity"},
+      {t:"Temperature dependence of resistance"},
+      {t:"Series and parallel combinations of resistors"},
+      {t:"Internal resistance; EMF; cells in series and parallel"},
+      {t:"Kirchhoff's laws and applications"},
+      {t:"Wheatstone bridge; metre bridge; post office box"},
+      {t:"Heating effect of current"},
+    ]},
+    { ch:13, name:"Magnetic Effects of Current and Magnetism", tag:"both", topics:[
+      {t:"Biot-Savart law; field near current wire; field along axis of circular coil"},
+      {t:"Ampere's law; field inside a long straight solenoid"},
+      {t:"Force on a moving charge in magnetic and electric fields"},
+      {t:"Force on a current-carrying conductor in uniform magnetic field"},
+      {t:"Force between two parallel current-carrying conductors; definition of ampere"},
+      {t:"Torque on a current loop in uniform magnetic field"},
+      {t:"Moving coil galvanometer; sensitivity; conversion to ammeter/voltmeter"},
+      {t:"Current loop as magnetic dipole; magnetic dipole moment"},
+      {t:"Bar magnet as equivalent solenoid; magnetic field lines"},
+      {t:"Torque on magnetic dipole; para-, dia-, ferromagnetic substances"},
+      {t:"Effect of temperature on magnetic properties"},
+    ]},
+    { ch:14, name:"Electromagnetic Induction and AC", tag:"both", topics:[
+      {t:"Electromagnetic induction; Faraday's law; induced EMF and current"},
+      {t:"Lenz's law; eddy currents"},
+      {t:"Self and mutual inductance"},
+      {t:"RC, LR, LC and LCR (series) circuits with DC and AC sources"},
+      {t:"Alternating currents: peak and RMS values"},
+      {t:"Reactance and impedance; LCR series circuit; resonance"},
+      {t:"Power in AC circuits; wattless current"},
+      {t:"AC generator and transformer"},
+    ]},
+    { ch:15, name:"Electromagnetic Waves", tag:"both", topics:[
+      {t:"Displacement current"},
+      {t:"Electromagnetic waves and their characteristics; transverse nature"},
+      {t:"Electromagnetic spectrum: radio, microwave, IR, visible, UV, X-ray, gamma"},
+      {t:"Applications and facts about each type"},
+    ]},
+    { ch:16, name:"Optics", tag:"both", topics:[
+      {t:"Rectilinear propagation; reflection at plane and spherical surfaces; mirror formula"},
+      {t:"Refraction at plane and spherical surfaces; Snell's law"},
+      {t:"Thin lens formula; lens maker's equation; magnification; power of lens"},
+      {t:"Total internal reflection and applications"},
+      {t:"Combination of mirrors and thin lenses in contact"},
+      {t:"Refraction through a prism: deviation and dispersion"},
+      {t:"Microscope (simple, compound) and astronomical telescope; magnifying powers"},
+      {t:"Wave optics: wavefront; Huygens' principle"},
+      {t:"Interference: Young's double-slit experiment; fringe width; coherent sources"},
+      {t:"Diffraction due to single slit; width of central maximum"},
+      {t:"Polarization: plane-polarized light; Brewster's law; Polaroids"},
+    ]},
+    { ch:17, name:"Modern Physics — Dual Nature, Atoms, Nuclei", tag:"both", topics:[
+      {t:"Dual nature of radiation; photoelectric effect; Hertz and Lenard's observations"},
+      {t:"Einstein's photoelectric equation; particle nature of light"},
+      {t:"de Broglie relation; wave nature of particles"},
+      {t:"Bohr's theory of hydrogen-like atoms; energy levels; hydrogen spectrum"},
+      {t:"Characteristic and continuous X-rays; Moseley's law"},
+      {t:"Atomic nucleus; composition and size; atomic masses"},
+      {t:"Alpha, beta, gamma radiations; law of radioactive decay; decay constant"},
+      {t:"Half-life and mean life"},
+      {t:"Binding energy; mass defect; binding energy per nucleon vs mass number"},
+      {t:"Nuclear fission and fusion; energy calculations"},
+    ]},
+    { ch:18, name:"Electronic Devices", tag:"both", topics:[
+      {t:"Semiconductors: n-type and p-type"},
+      {t:"p-n junction diode: I-V characteristics; forward and reverse bias"},
+      {t:"Diode as a rectifier"},
+      {t:"LED, photodiode, solar cell — I-V characteristics"},
+      {t:"Zener diode characteristics; Zener as voltage regulator"},
+      {t:"Logic gates: OR, AND, NOT, NAND, NOR — truth tables and symbols"},
+    ]},
+  ],
+  chemistry: [
+    { ch:1, name:"Basic Concepts and Stoichiometry", tag:"both", topics:[
+      {t:"Matter and its nature; Dalton's atomic theory"},
+      {t:"Concept of atom, molecule, element and compound"},
+      {t:"Laws of chemical combination"},
+      {t:"Atomic and molecular masses"},
+      {t:"Mole concept; molar mass; Avogadro's number"},
+      {t:"Percentage composition; empirical and molecular formulae"},
+      {t:"Chemical equations and stoichiometry"},
+      {t:"Calculations: oxidation-reduction, neutralisation, displacement"},
+      {t:"Concentration: mole fraction, molarity, molality, normality"},
+    ]},
+    { ch:2, name:"Atomic Structure", tag:"both", topics:[
+      {t:"Nature of electromagnetic radiation; photoelectric effect"},
+      {t:"Spectrum of hydrogen atom"},
+      {t:"Bohr model: postulates, energy of electron, radii, limitations"},
+      {t:"Wave-particle duality; de Broglie hypothesis"},
+      {t:"Heisenberg uncertainty principle"},
+      {t:"Quantum numbers (principal, angular momentum, magnetic, spin)"},
+      {t:"Shapes of s, p, d orbitals; wave function and probability density"},
+      {t:"Aufbau principle; Pauli's exclusion principle; Hund's rule"},
+      {t:"Electronic configuration; extra stability of half-filled/fully-filled orbitals"},
+    ]},
+    { ch:3, name:"Chemical Bonding and Molecular Structure", tag:"both", topics:[
+      {t:"Kossel-Lewis approach; ionic bonds; covalent bonds; lattice enthalpy"},
+      {t:"Electronegativity; Fajan's rules; dipole moment"},
+      {t:"VSEPR theory; molecular shapes (linear, angular, triangular, pyramidal, etc.)"},
+      {t:"Valence bond theory: orbital overlap; hybridisation (s,p,d); resonance"},
+      {t:"Molecular orbital theory: LCAOs; bonding/antibonding MOs; sigma and pi bonds"},
+      {t:"MO energy diagrams for homonuclear diatomic species (up to Ne2)"},
+      {t:"Bond order, bond length, bond energy"},
+      {t:"Hydrogen bonding and applications; metallic bonding"},
+      {t:"Polarity in molecules; van der Waals interactions"},
+    ]},
+    { ch:4, name:"States of Matter: Gases and Liquids", tag:"both", topics:[
+      {t:"Gas laws: Boyle's, Charles's, Gay-Lussac's, Avogadro's law"},
+      {t:"Ideal gas equation; absolute temperature scale"},
+      {t:"Deviations from ideality; van der Waals equation"},
+      {t:"Kinetic theory; concept of pressure; kinetic interpretation of temperature"},
+      {t:"RMS, average and most probable speeds"},
+      {t:"Law of partial pressures; diffusion of gases"},
+      {t:"Degrees of freedom; law of equipartition of energy; mean free path"},
+      {t:"Liquids: vapour pressure; surface tension; viscosity"},
+    ]},
+    { ch:5, name:"Chemical Thermodynamics", tag:"both", topics:[
+      {t:"System and surroundings; extensive and intensive properties; state functions"},
+      {t:"Types of processes: isothermal, adiabatic, isobaric, isochoric"},
+      {t:"First law: internal energy, work, heat, enthalpy; heat capacity"},
+      {t:"Hess's law of constant heat summation"},
+      {t:"Enthalpies: bond dissociation, combustion, formation, atomization, sublimation, phase transition, hydration, ionization, solution"},
+      {t:"Second law: spontaneity; entropy (S)"},
+      {t:"Gibbs energy (G); criteria for equilibrium and spontaneity"},
+      {t:"Relation between ΔG° and equilibrium constant"},
+    ]},
+    { ch:6, name:"Solutions", tag:"both", topics:[
+      {t:"Methods of expressing concentration: molality, molarity, mole fraction, % by mass/volume"},
+      {t:"Vapour pressure of solutions; Raoult's law"},
+      {t:"Ideal and non-ideal solutions"},
+      {t:"Colligative properties: relative lowering of vapour pressure"},
+      {t:"Depression of freezing point; elevation of boiling point"},
+      {t:"Osmotic pressure"},
+      {t:"Determination of molecular mass using colligative properties"},
+      {t:"Abnormal molar mass; van't Hoff factor and significance"},
+      {t:"Henry's law"},
+    ]},
+    { ch:7, name:"Chemical and Ionic Equilibrium", tag:"both", topics:[
+      {t:"Concept of dynamic equilibrium; Kp and Kc; reaction quotient Q"},
+      {t:"Le Chatelier's principle: effect of concentration, pressure, temperature, catalyst"},
+      {t:"Ionic equilibrium: weak and strong electrolytes; ionisation constants Ka, Kb"},
+      {t:"Concepts of acids and bases: Arrhenius, Bronsted-Lowry, Lewis"},
+      {t:"Acid-base equilibria including multistage ionisation"},
+      {t:"Ionisation of water; pH scale"},
+      {t:"Common ion effect; hydrolysis of salts"},
+      {t:"Buffer solutions"},
+      {t:"Solubility product (Ksp) and sparingly soluble salts"},
+    ]},
+    { ch:8, name:"Electrochemistry", tag:"both", topics:[
+      {t:"Electronic concepts of oxidation and reduction; oxidation number"},
+      {t:"Balancing of redox reactions"},
+      {t:"Electrochemical cells: electrolytic and galvanic; types of electrodes"},
+      {t:"Standard electrode potentials; electrochemical series"},
+      {t:"Half-cell and cell reactions; EMF; measurement"},
+      {t:"Nernst equation and applications"},
+      {t:"Relationship between cell potential and Gibbs energy change"},
+      {t:"Faraday's laws of electrolysis"},
+      {t:"Electrolytic conductance; specific, equivalent and molar conductivity"},
+      {t:"Kohlrausch's law and applications"},
+      {t:"Batteries: primary and secondary (dry cell, lead accumulator); fuel cells; corrosion"},
+    ]},
+    { ch:9, name:"Chemical Kinetics", tag:"both", topics:[
+      {t:"Rate of chemical reaction; factors affecting rate"},
+      {t:"Elementary and complex reactions; order and molecularity"},
+      {t:"Rate law; rate constant and its units"},
+      {t:"Zero-order and first-order reactions: differential and integral forms"},
+      {t:"Characteristics and half-lives of zero- and first-order reactions"},
+      {t:"Effect of temperature on rate; Arrhenius equation; activation energy"},
+      {t:"Collision theory of bimolecular gaseous reactions"},
+      {t:"Catalysis: homogeneous and heterogeneous; enzyme catalysis"},
+    ]},
+    { ch:10, name:"★ Solid State (Advanced Only)", tag:"adv", topics:[
+      {t:"Classification of solids; crystalline state; seven crystal systems", adv:true},
+      {t:"Close-packed structures: cubic (fcc, bcc) and hexagonal (hcp) lattices", adv:true},
+      {t:"Packing efficiency; nearest neighbours; ionic radii and radius ratio", adv:true},
+      {t:"Point defects (Schottky, Frenkel)", adv:true},
+    ]},
+    { ch:11, name:"★ Surface Chemistry (Advanced Only)", tag:"adv", topics:[
+      {t:"Adsorption: physisorption and chemisorption; Freundlich adsorption isotherm", adv:true},
+      {t:"Colloids: types, methods of preparation, general properties", adv:true},
+      {t:"Emulsions, surfactants and micelles", adv:true},
+    ]},
+    { ch:12, name:"Classification of Elements and Periodicity", tag:"both", topics:[
+      {t:"Modern periodic law; s, p, d, f block elements"},
+      {t:"Electronic configuration of elements"},
+      {t:"Periodic trends: atomic radius, ionic radius, ionisation enthalpy, electron gain enthalpy"},
+      {t:"Valence, oxidation states, electronegativity, chemical reactivity"},
+      {t:"Unique behaviour of the first element in each group"},
+    ]},
+    { ch:13, name:"Hydrogen and s-Block Elements", tag:"both", topics:[
+      {t:"Hydrogen: position in periodic table; occurrence; isotopes"},
+      {t:"Preparation, properties and uses of hydrogen"},
+      {t:"Hydrides: ionic, covalent and interstitial"},
+      {t:"Physical and chemical properties of water and heavy water"},
+      {t:"Hydrogen peroxide: preparation, reactions, structure, uses"},
+      {t:"s-Block: alkali and alkaline earth metals — reactivity"},
+      {t:"Reducing nature; solutions in liquid ammonia"},
+      {t:"Characteristics of oxides, hydroxides, halides, salts of oxoacids"},
+      {t:"Anomalous behaviour of Li and Be"},
+      {t:"Key compounds of Na: Na2CO3, NaCl, NaOH, NaHCO3"},
+      {t:"Key compounds of Ca: CaO, Ca(OH)2, CaCO3, CaSO4"},
+    ]},
+    { ch:14, name:"p-Block Elements (Groups 13–18)", tag:"both", topics:[
+      {t:"General: oxidation states; anomalous properties of B, C, N, O, F"},
+      {t:"Group 13: borax, orthoboric acid, diborane, BF3, AlCl3, alums"},
+      {t:"Group 14: allotropes of carbon; CO, CO2, SiO2, silicones, silicates, zeolites"},
+      {t:"Group 15: allotropes of P; N2, NH3, HNO3, PH3, PCl3, PCl5; oxides and oxoacids of N and P"},
+      {t:"Group 16: allotropes of S; O2, O3, SO2, H2SO4; oxoacids of S"},
+      {t:"Group 17: Cl2, HCl, interhalogen compounds; oxoacids of halogens; bleaching powder"},
+      {t:"Group 18: chemical properties and uses; compounds of Xe with F and O"},
+    ]},
+    { ch:15, name:"d-Block and f-Block Elements", tag:"both", topics:[
+      {t:"General introduction; electronic configuration; occurrence and characteristics"},
+      {t:"General trends: physical properties, ionisation enthalpy, oxidation states, atomic radii"},
+      {t:"Colour; catalytic behaviour; magnetic properties; complex formation"},
+      {t:"Interstitial compounds; alloy formation"},
+      {t:"Oxidation states and stability; standard electrode potentials"},
+      {t:"Preparation, structure and reactions of K2Cr2O7 and KMnO4"},
+      {t:"f-Block: lanthanoid and actinoid contractions; oxidation states"},
+    ]},
+    { ch:16, name:"Coordination Compounds", tag:"both", topics:[
+      {t:"Werner's theory; ligands and types; spectrochemical series"},
+      {t:"Coordination number; denticity; chelation"},
+      {t:"IUPAC nomenclature of mononuclear coordination compounds"},
+      {t:"Isomerism: cis-trans and ionization isomerism"},
+      {t:"Hybridisation and geometries: linear, tetrahedral, square planar, octahedral"},
+      {t:"Bonding: VBT and CFT (octahedral and tetrahedral fields)"},
+      {t:"Magnetic properties and colour of 3d-series coordination compounds"},
+      {t:"Stability; metal carbonyls; applications (qualitative analysis, extraction, biological)"},
+    ]},
+    { ch:17, name:"★ Metallurgy (Advanced Only)", tag:"adv", topics:[
+      {t:"Metal ores and their concentration", adv:true},
+      {t:"Extraction of crude metal — thermodynamic principles: Fe, Cu, Zn", adv:true},
+      {t:"Extraction — electrochemical principles: aluminium", adv:true},
+      {t:"Cyanide process: silver and gold; refining of metals", adv:true},
+    ]},
+    { ch:18, name:"★ Environmental Chemistry (Advanced Only)", tag:"adv", topics:[
+      {t:"Atmospheric pollution; water pollution; soil pollution; industrial waste", adv:true},
+      {t:"Strategies to control environmental pollution; green chemistry", adv:true},
+    ]},
+    { ch:19, name:"Basic Principles of Organic Chemistry", tag:"both", topics:[
+      {t:"Tetravalency of carbon; sigma and pi bonds; hybridisation (sp3, sp2, sp); aromaticity"},
+      {t:"Structural isomerism and stereoisomerism: geometrical, optical"},
+      {t:"Enantiomers, diastereomers, meso compounds (up to 2 asymmetric centres)"},
+      {t:"IUPAC nomenclature: hydrocarbons, mono- and bi-functional derivatives"},
+      {t:"Covalent bond fission: homolytic (free radicals) and heterolytic (carbocations, carbanions)"},
+      {t:"Stability of carbocations, carbanions and free radicals"},
+      {t:"Electrophiles and nucleophiles; reactive intermediates"},
+      {t:"Electronic effects: inductive, electromeric, resonance, hyperconjugation"},
+      {t:"Types of organic reactions: substitution, addition, elimination, rearrangement"},
+      {t:"Determination of empirical and molecular formulae by combustion"},
+    ]},
+    { ch:20, name:"Hydrocarbons", tag:"both", topics:[
+      {t:"Alkanes: homologous series; conformations (Newman projections)"},
+      {t:"Preparation of alkanes from alkyl halides and carboxylic acids"},
+      {t:"Reactions: combustion; halogenation; mechanism of halogenation"},
+      {t:"Alkenes: geometrical isomerism; preparation by elimination"},
+      {t:"Electrophilic addition: H2, X2, HX (Markovnikov); peroxide effect; hydration"},
+      {t:"Reactions with KMnO4 and ozone (ozonolysis); reduction; polymerization"},
+      {t:"Alkynes: acidic character; metal acetylides; addition of H2, halogens, water, HX"},
+      {t:"Aromatic hydrocarbons (benzene): structure; aromaticity (Hückel's rule)"},
+      {t:"Electrophilic substitution: halogenation, nitration, sulphonation, Friedel-Crafts"},
+      {t:"Directive influence of substituents in monosubstituted benzene"},
+    ]},
+    { ch:21, name:"Organic Compounds Containing Halogens", tag:"both", topics:[
+      {t:"Alkyl halides: general preparation; properties; nature of C-X bond"},
+      {t:"Nucleophilic substitution reactions and stereochemical aspects"},
+      {t:"Rearrangement reactions of alkyl carbocations; Grignard reactions"},
+      {t:"Haloarenes: Fittig reaction; Wurtz-Fittig reaction"},
+      {t:"Nucleophilic aromatic substitution"},
+      {t:"Uses; environmental effects: chloroform, iodoform, freons, DDT"},
+    ]},
+    { ch:22, name:"Organic Compounds Containing Oxygen", tag:"both", topics:[
+      {t:"Alcohols: primary, secondary, tertiary; reactions: esterification, dehydration"},
+      {t:"Reactions with Na, phosphorus halides, ZnCl2/HCl (Lucas test), SOCl2"},
+      {t:"Conversion to aldehydes, ketones, carboxylic acids"},
+      {t:"Phenols: acidic nature; electrophilic substitution (halogenation, nitration, sulphonation)"},
+      {t:"Reimer-Tiemann reaction; Kolbe reaction; esterification; etherification"},
+      {t:"Aspirin synthesis; oxidation and reduction of phenol"},
+      {t:"Ethers: Williamson's synthesis; C-O bond cleavage; structure"},
+      {t:"Aldehydes and Ketones: nature of carbonyl group; preparation"},
+      {t:"Reactions: oxidation; reduction (Wolf-Kishner and Clemmensen)"},
+      {t:"Aldol condensation; Cannizzaro reaction; haloform reaction"},
+      {t:"Nucleophilic addition: HCN, NH3 derivatives, RMgX, NaHSO3, HCN, alcohol, amine"},
+      {t:"Carboxylic acids: acidic strength; preparation; reactions (reduction, halogenation, ester/acid chloride/amide formation)"},
+    ]},
+    { ch:23, name:"Organic Compounds Containing Nitrogen", tag:"both", topics:[
+      {t:"Amines: nomenclature; classification; structure; basic character"},
+      {t:"Identification tests (Hinsberg test, carbylamine reaction)"},
+      {t:"Preparation: from nitro compounds, nitriles, amides"},
+      {t:"Hofmann bromamide degradation; Gabriel phthalimide synthesis"},
+      {t:"Reactions: with nitrous acid; azo coupling; Sandmeyer and related reactions"},
+      {t:"Alkylation and acylation reactions"},
+      {t:"Diazonium salts: formation; importance in synthetic organic chemistry"},
+    ]},
+    { ch:24, name:"Biomolecules", tag:"both", topics:[
+      {t:"Carbohydrates: classification (mono, di, poly); aldoses and ketoses"},
+      {t:"Monosaccharides: glucose and fructose — structure, properties"},
+      {t:"Oxidation; reduction; glycoside formation"},
+      {t:"Disaccharides: hydrolysis of sucrose, maltose, lactose"},
+      {t:"Proteins: alpha-amino acids; peptide bond; polypeptides"},
+      {t:"Primary and secondary structure; tertiary and quaternary structure"},
+      {t:"Types: fibrous and globular; denaturation; enzymes"},
+      {t:"Vitamins: classification and functions"},
+      {t:"Nucleic acids: composition and structure of DNA and RNA"},
+      {t:"Hormones: general introduction"},
+    ]},
+    { ch:25, name:"★ Polymers (Advanced Only)", tag:"adv", topics:[
+      {t:"Types of polymerization: addition and condensation", adv:true},
+      {t:"Homo and copolymers", adv:true},
+      {t:"Natural rubber; cellulose; nylon; Teflon; Bakelite; PVC", adv:true},
+      {t:"Biodegradable polymers; applications of polymers", adv:true},
+    ]},
+    { ch:26, name:"★ Chemistry in Everyday Life (Advanced Only)", tag:"adv", topics:[
+      {t:"Drug-target interaction; therapeutic action of antacids, antihistamines, tranquilizers, analgesics, antimicrobials, antifertility drugs", adv:true},
+      {t:"Artificial sweeteners; soaps, detergents and cleansing action", adv:true},
+    ]},
+    { ch:27, name:"Purification, Qualitative & Practical Chemistry", tag:"both", topics:[
+      {t:"Purification: crystallization, sublimation, distillation, chromatography"},
+      {t:"Qualitative analysis: detection of N, S, P, halogens in organic compounds"},
+      {t:"Detection of functional groups: hydroxyl, carbonyl, carboxyl, amino, nitro"},
+      {t:"Quantitative analysis: estimation of C, H, N, halogens, S, P"},
+      {t:"Inorganic salt analysis — cations: Pb2+, Cu2+, Al3+, Fe3+, Zn2+, Ni2+, Ca2+, Ba2+, Mg2+, NH4+, Hg2+, Cr3+, Mn2+"},
+      {t:"Inorganic salt analysis — anions: CO32-, S2-, SO42-, NO3-, NO2-, Cl-, Br-, I-"},
+      {t:"Preparation of inorganic compounds: Mohr's salt, potash alum"},
+      {t:"Preparation of organic compounds: acetanilide, p-nitroacetanilide, iodoform"},
+      {t:"Titrimetric chemistry: acid/base; oxalic acid vs KMnO4; Mohr's salt vs KMnO4"},
+    ]},
+  ],
+};
+
+// ═══════════════════════════════════════
+// ISI / CMI SYLLABUS (DETAILED)
+// ═══════════════════════════════════════
+const ISI_DATA = {
+  isi_math: [
+    { ch:1, name:"Number Theory", topics:[
+      {t:"Divisibility; Euclidean algorithm; GCD and LCM"},
+      {t:"Prime numbers; fundamental theorem of arithmetic"},
+      {t:"Congruences; modular arithmetic; Fermat's little theorem"},
+      {t:"Chinese Remainder Theorem"},
+      {t:"Diophantine equations"},
+      {t:"Quadratic residues; Legendre symbol (basic)"},
+    ]},
+    { ch:2, name:"Algebra", topics:[
+      {t:"Polynomials: roots, factorization, symmetric functions"},
+      {t:"Rational functions; partial fractions"},
+      {t:"Inequalities: AM-GM, Cauchy-Schwarz, Power Mean"},
+      {t:"Functional equations"},
+      {t:"Sequences and series: convergence, special sums"},
+      {t:"Complex numbers: geometry, roots of unity, advanced applications"},
+      {t:"Permutation groups basics; Burnside's lemma"},
+    ]},
+    { ch:3, name:"Combinatorics", topics:[
+      {t:"Advanced counting: inclusion-exclusion principle"},
+      {t:"Pigeonhole principle and applications"},
+      {t:"Generating functions (ordinary and exponential)"},
+      {t:"Recurrence relations and their solutions"},
+      {t:"Combinatorial identities (Vandermonde, Zhu-Vandermonde)"},
+      {t:"Graph theory: paths, cycles, trees, Euler/Hamiltonian"},
+      {t:"Extremal combinatorics; Ramsey theory basics"},
+    ]},
+    { ch:4, name:"Geometry", topics:[
+      {t:"Advanced Euclidean geometry: concyclicity, collinearity, concurrence"},
+      {t:"Ceva's theorem and Menelaus' theorem"},
+      {t:"Trigonometric form and complex number geometry"},
+      {t:"Inversion and projective geometry basics"},
+      {t:"Coordinate geometry: advanced locus problems"},
+      {t:"Transformations: rotation, reflection, homothety"},
+    ]},
+    { ch:5, name:"Real Analysis (Intro)", topics:[
+      {t:"Real numbers; sequences: convergence, Cauchy criterion"},
+      {t:"Series: ratio test, root test, comparison test"},
+      {t:"Limits and continuity (epsilon-delta)"},
+      {t:"Differentiability; mean value theorems"},
+      {t:"Riemann integration; properties; applications"},
+      {t:"Metric spaces: basic definitions and examples"},
+    ]},
+    { ch:6, name:"Linear Algebra", topics:[
+      {t:"Vector spaces; subspaces; basis and dimension"},
+      {t:"Linear transformations; kernel and image"},
+      {t:"Matrices: rank, nullity, determinants (advanced)"},
+      {t:"Eigenvalues and eigenvectors; diagonalization"},
+      {t:"Inner product spaces; orthogonality"},
+      {t:"Quadratic forms"},
+    ]},
+  ],
+  isi_stat: [
+    { ch:1, name:"Probability Theory", topics:[
+      {t:"Probability axioms; conditional probability; independence"},
+      {t:"Bayes' theorem and applications"},
+      {t:"Discrete distributions: Bernoulli, Binomial, Poisson, Geometric, Negative Binomial"},
+      {t:"Continuous distributions: Uniform, Exponential, Normal, Gamma, Beta"},
+      {t:"Joint distributions; marginal and conditional distributions"},
+      {t:"Expectation, variance, covariance, correlation"},
+      {t:"Moment generating functions and characteristic functions"},
+      {t:"Laws of large numbers; Central Limit Theorem"},
+    ]},
+    { ch:2, name:"Statistical Inference", topics:[
+      {t:"Point estimation: unbiasedness, consistency, efficiency"},
+      {t:"Methods of estimation: MOM, MLE"},
+      {t:"Sufficiency; Rao-Blackwell theorem; Cramér-Rao bound"},
+      {t:"Interval estimation: confidence intervals"},
+      {t:"Hypothesis testing: Type I and Type II errors; power function"},
+      {t:"Neyman-Pearson lemma; likelihood ratio tests"},
+      {t:"Chi-square, t and F distributions and tests"},
+    ]},
+    { ch:3, name:"Regression and Correlation", topics:[
+      {t:"Simple linear regression; least squares estimation"},
+      {t:"Coefficient of determination; ANOVA for regression"},
+      {t:"Multiple regression (basic)"},
+      {t:"Pearson and Spearman correlation coefficients"},
+    ]},
+    { ch:4, name:"Sampling Theory", topics:[
+      {t:"Simple random sampling; stratified sampling; cluster sampling"},
+      {t:"Sampling distributions; standard errors"},
+      {t:"Survey design basics"},
+    ]},
+    { ch:5, name:"Mathematics for Statistics", topics:[
+      {t:"Calculus: differentiation and integration (multivariable basics)"},
+      {t:"Jacobians and transformations of random variables"},
+      {t:"Linear algebra: matrices, eigenvalues for multivariate statistics"},
+      {t:"Generating functions and applications in probability"},
+    ]},
+  ],
+  cmi_math: [
+    { ch:1, name:"Olympiad Algebra", topics:[
+      {t:"Polynomials: roots, factorization, irreducibility"},
+      {t:"Functional equations (standard types)"},
+      {t:"Sequences: recurrences, telescoping, advanced sums"},
+      {t:"Inequalities: AM-GM, Cauchy-Schwarz, SOS, Schur"},
+      {t:"Complex numbers: advanced geometry, roots"},
+      {t:"Abstract algebra: groups, rings, fields (basic definitions and examples)"},
+    ]},
+    { ch:2, name:"Number Theory", topics:[
+      {t:"Divisibility; prime factorization; GCD/LCM"},
+      {t:"Congruences; modular arithmetic; Fermat, Euler, Wilson theorems"},
+      {t:"Chinese Remainder Theorem"},
+      {t:"Quadratic residues; Legendre symbol"},
+      {t:"Diophantine equations: Pell equation, Pythagorean triples"},
+      {t:"Order of elements; primitive roots"},
+    ]},
+    { ch:3, name:"Combinatorics", topics:[
+      {t:"Advanced counting; inclusion-exclusion"},
+      {t:"Pigeonhole principle and probabilistic method basics"},
+      {t:"Generating functions"},
+      {t:"Recurrence relations"},
+      {t:"Graph theory: Eulerian/Hamiltonian graphs, trees, planarity, graph coloring"},
+      {t:"Ramsey theory; extremal graph theory basics"},
+    ]},
+    { ch:4, name:"Geometry", topics:[
+      {t:"Advanced Euclidean geometry: concyclicity, collinearity, concurrence"},
+      {t:"Trigonometric identities in geometry"},
+      {t:"Ceva, Menelaus, Ptolemy, radical axis"},
+      {t:"Projective geometry and cross-ratio basics"},
+      {t:"Transformations: inversion, projective"},
+    ]},
+    { ch:5, name:"Real Analysis", topics:[
+      {t:"Sequences and series: convergence tests"},
+      {t:"Limits, continuity, differentiability (rigorous)"},
+      {t:"Mean Value Theorem; Taylor's theorem; applications"},
+      {t:"Riemann integration; properties; improper integrals"},
+      {t:"Metric spaces; compactness; connectedness"},
+      {t:"Uniform convergence; interchange of limits"},
+    ]},
+    { ch:6, name:"Linear Algebra", topics:[
+      {t:"Vector spaces, subspaces, bases, dimension"},
+      {t:"Linear maps; kernel, image, rank-nullity"},
+      {t:"Determinants; characteristic polynomial"},
+      {t:"Eigenvalues and eigenvectors; diagonalization; Jordan form (intro)"},
+      {t:"Inner product spaces; Gram-Schmidt; orthogonal projection"},
+      {t:"Positive definite matrices; quadratic forms; SVD (intro)"},
+    ]},
+  ],
+  cmi_cs: [
+    { ch:1, name:"Logic and Proofs", topics:[
+      {t:"Propositional logic: connectives, truth tables, tautologies"},
+      {t:"Predicate logic: quantifiers, interpretations"},
+      {t:"Methods of proof: direct, contradiction, induction, strong induction"},
+      {t:"Well-ordering principle"},
+    ]},
+    { ch:2, name:"Set Theory and Relations", topics:[
+      {t:"Sets; Zermelo-Fraenkel axioms (informal)"},
+      {t:"Relations: equivalence, partial order, total order"},
+      {t:"Functions: injections, surjections, bijections"},
+      {t:"Cardinality; countable and uncountable sets"},
+    ]},
+    { ch:3, name:"Discrete Mathematics", topics:[
+      {t:"Combinatorics: counting, permutations, combinations"},
+      {t:"Discrete probability: sample spaces, events, Bayes"},
+      {t:"Graph theory: basic definitions, traversal, coloring, planarity"},
+      {t:"Trees: binary trees, spanning trees, algorithms"},
+      {t:"Boolean algebra: lattices, normal forms"},
+    ]},
+    { ch:4, name:"Algorithms and Complexity", topics:[
+      {t:"Algorithm design: brute force, divide and conquer, greedy, DP"},
+      {t:"Sorting algorithms: complexity analysis"},
+      {t:"Data structures: arrays, linked lists, stacks, queues, trees, heaps, hash tables"},
+      {t:"Big-O notation; time and space complexity"},
+      {t:"Turing machines; decidability; Halting problem"},
+      {t:"P and NP; NP-completeness; reductions (basics)"},
+    ]},
+    { ch:5, name:"Formal Languages and Automata", topics:[
+      {t:"Finite automata: DFA, NFA; equivalence"},
+      {t:"Regular expressions; Kleene's theorem"},
+      {t:"Context-free grammars; pushdown automata"},
+      {t:"Pumping lemma for regular and CFL"},
+      {t:"Turing machines; Church-Turing thesis"},
+    ]},
+    { ch:6, name:"Calculus and Linear Algebra for CS", topics:[
+      {t:"Basic differentiation and integration"},
+      {t:"Probability distributions relevant to CS (Bernoulli, Binomial, Poisson, Normal)"},
+      {t:"Matrices; systems of linear equations; eigenvalues"},
+      {t:"Linear algebra applications: PageRank, Markov chains"},
+    ]},
+  ],
+};
+
+// ═══════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════
+function fmtDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function todayStr() { return fmtDate(new Date()); }
+function cdUnit(val, lbl) {
+  return `<div class="cd-unit"><div class="cd-num">${String(val).padStart(2,'0')}</div><div class="cd-ulbl">${lbl}</div></div>`;
+}
+function renderCountdown(el, target) {
+  if (!el) return;
+  const diff = target - new Date();
+  if (diff <= 0) { el.innerHTML = '<span style="color:var(--accent3);font-size:16px;font-weight:700;">✓ Date Reached!</span>'; return; }
+  const d = Math.floor(diff/86400000);
+  const h = Math.floor((diff%86400000)/3600000);
+  const m = Math.floor((diff%3600000)/60000);
+  const s = Math.floor((diff%60000)/1000);
+  el.innerHTML = cdUnit(d,'days')+'<div class="cd-sep">:</div>'+cdUnit(h,'hrs')+'<div class="cd-sep">:</div>'+cdUnit(m,'min')+'<div class="cd-sep">:</div>'+cdUnit(s,'sec');
+}
+function getWeeks(start, end) {
+  const weeks = [];
+  let cur = new Date(start);
+  while (cur <= end) {
+    const ws = new Date(cur);
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      if (cur <= end) { days.push(new Date(cur)); cur.setDate(cur.getDate()+1); }
+    }
+    weeks.push({ start: ws, days });
+  }
+  return weeks;
+}
+function computeStreak() {
+  let streak = 0;
+  const today = todayStr();
+  let check = new Date();
+  for (let i = 0; i < 500; i++) {
+    const d = fmtDate(check);
+    const e = S.cal[d] || {};
+    const tot = (e.p||0)+(e.c||0)+(e.m||0);
+    const isi = (S.isiCal[d]||{}).q || 0;
+    if (tot > 0 || isi > 0) { streak++; }
+    else if (d === today) { /* today not done yet, skip */ }
+    else break;
+    check.setDate(check.getDate()-1);
+  }
+  return streak;
+}
+
+// ═══════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════
+const PAGE_TITLES = {
+  dashboard:'Dashboard', countdown:'Countdown', calendar:'Question Tracker',
+  'isi-tracker':'ISI/CMI Daily', todo:'Daily To-Do', streak:'Streak',
+  'jee-syllabus':'JEE Syllabus', 'isi-syllabus':'ISI & CMI Syllabus',
+  mocks:'Mock Tests', revision:'Revision Schedule', performance:'Performance',
+};
+function nav(el, id) {
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  document.getElementById('topbar-title').textContent = PAGE_TITLES[id]||id;
+  const renders = {
+    dashboard: renderDashboard,
+    calendar: renderCalendar,
+    'isi-tracker': renderIsiCalendar,
+    'jee-syllabus': ()=>renderJeeSyllabus(currentJeeTab),
+    'isi-syllabus': ()=>renderIsiSyllabus(currentIsiTab),
+    mocks: renderMocks,
+    todo: renderTodo,
+    revision: renderRevision,
+    performance: renderPerformance,
+    streak: renderStreak,
+  };
+  if (renders[id]) renders[id]();
+}
+
+// ═══════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════
+function toggleTheme() { /* dark mode only - no toggle */ }
+function applyTheme() { document.documentElement.removeAttribute("data-theme"); }
+
+// ═══════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════
+function exportData() {
+  const blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `jee_backup_${todayStr()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+function triggerImport() {
+  document.getElementById('importFile').click();
+}
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      // Merge carefully
+      if (parsed.cal) S.cal = parsed.cal;
+      if (parsed.isiCal) S.isiCal = parsed.isiCal;
+      if (parsed.jeeSyl) S.jeeSyl = parsed.jeeSyl;
+      if (parsed.isiSyl) S.isiSyl = parsed.isiSyl;
+      if (parsed.mocks) S.mocks = parsed.mocks;
+      if (parsed.todos) S.todos = parsed.todos;
+      save();
+      alert('✅ Data imported successfully!');
+      renderDashboard();
+    } catch(err) {
+      alert('❌ Invalid backup file. Please use a valid JSON backup.');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ═══════════════════════════════════════
+// GREETING
+// ═══════════════════════════════════════
+function setGreeting() {
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting-text').innerHTML = `${g}, <span>Champion!</span> 👋`;
+  document.getElementById('greeting-date').textContent = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+// ═══════════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════════
+function renderDashboard() {
+  setGreeting();
+  // oct countdown on dashboard
+  renderCountdown(document.getElementById('dash-cd-oct'), END_DATE);
+
+  // this week questions
+  const now = new Date();
+  const dow = now.getDay();
+  const ws = new Date(now); ws.setDate(now.getDate()-dow);
+  let wp=0,wc=0,wm=0;
+  for(let i=0;i<7;i++){const d=new Date(ws);d.setDate(ws.getDate()+i);const e=S.cal[fmtDate(d)]||{};wp+=e.p||0;wc+=e.c||0;wm+=e.m||0;}
+  document.getElementById('d-phy').textContent=wp;
+  document.getElementById('d-che').textContent=wc;
+  document.getElementById('d-mat').textContent=wm;
+  document.getElementById('d-phy-bar').style.width=Math.min(100,wp/150*100)+'%';
+  document.getElementById('d-che-bar').style.width=Math.min(100,wc/150*100)+'%';
+  document.getElementById('d-mat-bar').style.width=Math.min(100,wm/200*100)+'%';
+  const streak=computeStreak();
+  document.getElementById('d-streak').textContent=streak;
+  document.getElementById('d-streak-bar').style.width=Math.min(100,streak/30*100)+'%';
+
+  // JEE progress
+  let jd=0,jt=0;
+  Object.values(JEE_DATA).forEach(sub=>sub.forEach(ch=>ch.topics.forEach(t=>{jt++;const id=`jee__${ch.ch}__${t.t.slice(0,20)}`;if(S.jeeSyl[id]==='done'||S.jeeSyl[id]==='revision')jd++;})));
+  const jpct=jt?Math.round(jd/jt*100):0;
+  document.getElementById('d-jee-pct').textContent=jpct+'%';
+  document.getElementById('d-jee-cnt').textContent=`${jd} of ${jt} topics`;
+  document.getElementById('d-jee-bar').style.width=jpct+'%';
+
+  // ISI progress
+  let id2=0,it=0;
+  ['isi_math','isi_stat'].forEach(sub=>ISI_DATA[sub].forEach(ch=>ch.topics.forEach(t=>{it++;const id=`isi__${sub}__${ch.ch}__${t.t.slice(0,20)}`;if(S.isiSyl[id]==='done'||S.isiSyl[id]==='revision')id2++;})));
+  const ipct=it?Math.round(id2/it*100):0;
+  document.getElementById('d-isi-pct').textContent=ipct+'%';
+  document.getElementById('d-isi-cnt').textContent=`${id2} of ${it} topics`;
+  document.getElementById('d-isi-bar').style.width=ipct+'%';
+
+  // CMI progress
+  let cd2=0,ct=0;
+  ['cmi_math','cmi_cs'].forEach(sub=>ISI_DATA[sub].forEach(ch=>ch.topics.forEach(t=>{ct++;const id=`isi__${sub}__${ch.ch}__${t.t.slice(0,20)}`;if(S.isiSyl[id]==='done'||S.isiSyl[id]==='revision')cd2++;})));
+  const cpct=ct?Math.round(cd2/ct*100):0;
+  document.getElementById('d-cmi-pct').textContent=cpct+'%';
+  document.getElementById('d-cmi-cnt').textContent=`${cd2} of ${ct} topics`;
+  document.getElementById('d-cmi-bar').style.width=cpct+'%';
+
+  document.getElementById('d-mocks').textContent=S.mocks.length;
+}
+
+// ═══════════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════════
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function renderCalendar() {
+  const weeks = getWeeks(START_DATE, END_DATE);
+  const cont = document.getElementById('calendar-container');
+  cont.innerHTML = '';
+  const today = todayStr();
+
+  weeks.forEach((wk,wi) => {
+    let tp=0,tc=0,tm=0;
+    wk.days.forEach(d=>{const e=S.cal[fmtDate(d)]||{};tp+=e.p||0;tc+=e.c||0;tm+=e.m||0;});
+    const isWeek0 = wi === 0;  // First week = Week 0 warmup
+    const isPast = wk.days[wk.days.length-1] < new Date();
+    const met = tp>=TARGETS.phy && tc>=TARGETS.che && tm>=TARGETS.mat;
+    const hasData = tp+tc+tm>0;
+    let bc='pend', bt='In Progress';
+    if(isWeek0){ bc='pend'; bt='🌱 Warmup Week — No Target'; }
+    else if(isPast&&hasData){bc=met?'met':'miss';bt=met?'✓ Target Met':'✗ Target Missed';}
+    else if(isPast&&!hasData){bc='miss';bt='✗ No Data';}
+    else if(met){bc='met';bt='✓ Target Met';}
+
+    const sl=`${MONTHS[wk.start.getMonth()]} ${wk.start.getDate()}`;
+    const el=wk.days[wk.days.length-1];
+    const el2=`${MONTHS[el.getMonth()]} ${el.getDate()}`;
+    const weekLabel = isWeek0 ? `Week 0 — Warmup · ${sl} – ${el2}` : `Week ${wi} · ${sl} – ${el2}`;
+
+    const block = document.createElement('div');
+    block.className='wk-block';
+    if(isWeek0) block.style.cssText='opacity:0.75;border-color:rgba(245,158,11,0.2);';
+    block.innerHTML=`
+      <div class="wk-hdr" style="${isWeek0?'background:rgba(245,158,11,0.05);':''}">
+        <div class="wk-title">${weekLabel}</div>
+        <div class="wk-badge ${bc}">${bt}</div>
+      </div>
+      <div class="wk-days" id="wkd-${wi}"></div>
+      <div class="wk-sum">
+        <div class="wsitem"><div class="ddot p"></div><span style="color:var(--phy)" class="wsval" id="wsp-${wi}">${tp}</span><span class="wstgt">${isWeek0?' Physics (warmup)':'/'+TARGETS.phy+' Physics'}</span></div>
+        <div class="wsitem"><div class="ddot c"></div><span style="color:var(--che)" class="wsval" id="wsc-${wi}">${tc}</span><span class="wstgt">${isWeek0?' Chemistry (warmup)':'/'+TARGETS.che+' Chemistry'}</span></div>
+        <div class="wsitem"><div class="ddot m"></div><span style="color:var(--mat)" class="wsval" id="wsm-${wi}">${tm}</span><span class="wstgt">${isWeek0?' Maths (warmup)':'/'+TARGETS.mat+' Maths'}</span></div>
+      </div>`;
+    cont.appendChild(block);
+
+    const daysEl=document.getElementById(`wkd-${wi}`);
+    wk.days.forEach(d=>{
+      const key=fmtDate(d);
+      const e=S.cal[key]||{};
+      const isToday=key===today;
+      const fut=d>new Date();
+      const cell=document.createElement('div');
+      cell.className='day-cell'+(isToday?' today-cell':'');
+      cell.innerHTML=`
+        <div class="day-nm">${DAYS[d.getDay()]}</div>
+        <div class="day-dt${isToday?' is-today':''}">${d.getDate()}</div>
+        <div class="day-inputs">
+          <div class="di-row"><div class="ddot p"></div><input class="d-inp" type="number" min="0" max="999" placeholder="0" value="${e.p||''}" ${fut?'disabled':''} onchange="updateCal('${key}','p',this.value,${wi})"></div>
+          <div class="di-row"><div class="ddot c"></div><input class="d-inp" type="number" min="0" max="999" placeholder="0" value="${e.c||''}" ${fut?'disabled':''} onchange="updateCal('${key}','c',this.value,${wi})"></div>
+          <div class="di-row"><div class="ddot m"></div><input class="d-inp" type="number" min="0" max="999" placeholder="0" value="${e.m||''}" ${fut?'disabled':''} onchange="updateCal('${key}','m',this.value,${wi})"></div>
+        </div>`;
+      daysEl.appendChild(cell);
+    });
+  });
+}
+function updateCal(key,sub,val,wi) {
+  if(!S.cal[key]) S.cal[key]={};
+  S.cal[key][sub]=parseInt(val)||0;
+  save();
+  const wk=getWeeks(START_DATE,END_DATE)[wi];
+  let tp=0,tc=0,tm=0;
+  wk.days.forEach(d=>{const e=S.cal[fmtDate(d)]||{};tp+=e.p||0;tc+=e.c||0;tm+=e.m||0;});
+  const ep=document.getElementById(`wsp-${wi}`),ec=document.getElementById(`wsc-${wi}`),em=document.getElementById(`wsm-${wi}`);
+  if(ep)ep.textContent=tp;if(ec)ec.textContent=tc;if(em)em.textContent=tm;
+}
+
+// ═══════════════════════════════════════
+// ISI CALENDAR
+// ═══════════════════════════════════════
+function renderIsiCalendar() {
+  const weeks = getWeeks(START_DATE, END_DATE);
+  const cont = document.getElementById('isi-calendar-container');
+  cont.innerHTML = '';
+  const today = todayStr();
+
+  weeks.forEach((wk,wi) => {
+    let tq=0;
+    wk.days.forEach(d=>{const e=S.isiCal[fmtDate(d)]||{};tq+=e.q||0;});
+    const isPast=wk.days[wk.days.length-1]<new Date();
+    const met=tq>=7;
+    const hasData=tq>0;
+    let bc='pend',bt='In Progress';
+    if(isPast&&hasData){bc=met?'met':'miss';bt=met?`✓ ${tq} problems`:`${tq}/7 days covered`;}
+    else if(isPast&&!hasData){bc='miss';bt='✗ No Data';}
+    else if(hasData){bc=met?'met':'pend';bt=`${tq} problems so far`;}
+
+    const sl=`${MONTHS[wk.start.getMonth()]} ${wk.start.getDate()}`;
+    const eld=wk.days[wk.days.length-1];
+    const el2=`${MONTHS[eld.getMonth()]} ${eld.getDate()}`;
+
+    const block=document.createElement('div');
+    block.className='wk-block';
+    block.innerHTML=`
+      <div class="wk-hdr">
+        <div class="wk-title">Week ${wi+1} · ${sl} – ${el2}</div>
+        <div class="wk-badge ${bc}">${bt}</div>
+      </div>
+      <div class="wk-days" id="isiwkd-${wi}"></div>
+      <div class="wk-sum">
+        <div class="wsitem"><div class="ddot i"></div><span style="color:var(--isi)" class="wsval" id="isiwq-${wi}">${tq}</span><span class="wstgt"> problems this week (target: 7)</span></div>
+      </div>`;
+    cont.appendChild(block);
+
+    const daysEl=document.getElementById(`isiwkd-${wi}`);
+    wk.days.forEach(d=>{
+      const key=fmtDate(d);
+      const e=S.isiCal[key]||{};
+      const isToday=key===today;
+      const fut=d>new Date();
+      const cell=document.createElement('div');
+      cell.className='day-cell'+(isToday?' today-cell':'');
+      cell.innerHTML=`
+        <div class="day-nm">${DAYS[d.getDay()]}</div>
+        <div class="day-dt${isToday?' is-today':''}">${d.getDate()}</div>
+        <div class="day-inputs">
+          <div class="di-row"><div class="ddot i"></div><input class="d-inp" type="number" min="0" max="99" placeholder="0" value="${e.q||''}" ${fut?'disabled':''} onchange="updateIsiCal('${key}',this.value,${wi})"></div>
+        </div>`;
+      daysEl.appendChild(cell);
+    });
+  });
+}
+function updateIsiCal(key,val,wi) {
+  if(!S.isiCal[key]) S.isiCal[key]={};
+  S.isiCal[key].q=parseInt(val)||0;
+  save();
+  const wk=getWeeks(START_DATE,END_DATE)[wi];
+  let tq=0;
+  wk.days.forEach(d=>{const e=S.isiCal[fmtDate(d)]||{};tq+=e.q||0;});
+  const eq=document.getElementById(`isiwq-${wi}`);
+  if(eq)eq.textContent=tq;
+}
+
+// ═══════════════════════════════════════
+// JEE SYLLABUS
+// ═══════════════════════════════════════
+let currentJeeTab = 'maths';
+function switchJeeTab(sub, btn) {
+  currentJeeTab=sub;
+  document.querySelectorAll('#jee-tabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderJeeSyllabus(sub);
+}
+function renderJeeSyllabus(sub) {
+  const chapters = JEE_DATA[sub];
+  const body = document.getElementById('jee-syllabus-body');
+
+  // overall card
+  let overall=0,total=0;
+  ['maths','physics','chemistry'].forEach(s=>JEE_DATA[s].forEach(ch=>ch.topics.forEach(t=>{
+    total++;
+    const id=`jee__${s}__${ch.ch}__${t.t.slice(0,20)}`;
+    if(S.jeeSyl[id]==='done'||S.jeeSyl[id]==='revision')overall++;
+  })));
+  const colors={maths:'var(--mat)',physics:'var(--phy)',chemistry:'var(--che)'};
+  let progHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-weight:700;">Overall JEE Progress</span><span class="mono" style="font-size:13px;color:var(--accent)">${overall}/${total} topics</span></div>`;
+  progHTML+=`<div class="prog-bar" style="height:8px;margin-bottom:14px;"><div class="prog-fill" style="width:${total?Math.round(overall/total*100):0}%;background:linear-gradient(90deg,var(--accent),var(--accent2));"></div></div>`;
+  progHTML+='<div style="display:flex;gap:14px;flex-wrap:wrap;">';
+  ['maths','physics','chemistry'].forEach(s=>{
+    let d=0,t=0;
+    JEE_DATA[s].forEach(ch=>ch.topics.forEach(tp=>{t++;const id=`jee__${s}__${ch.ch}__${tp.t.slice(0,20)}`;if(S.jeeSyl[id]==='done'||S.jeeSyl[id]==='revision')d++;}));
+    const pct=t?Math.round(d/t*100):0;
+    progHTML+=`<div style="flex:1;min-width:100px;"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px;text-transform:capitalize;"><span>${s}</span><span class="mono" style="color:${colors[s]}">${pct}%</span></div><div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${colors[s]};"></div></div></div>`;
+  });
+  progHTML+='</div>';
+  document.getElementById('jee-overall-card').innerHTML=progHTML;
+
+  // chapters
+  let html='';
+  chapters.forEach(ch=>{
+    let done=0;
+    ch.topics.forEach(t=>{const id=`jee__${sub}__${ch.ch}__${t.t.slice(0,20)}`;if(S.jeeSyl[id]==='done')done++;});
+    const pct=ch.topics.length?Math.round(done/ch.topics.length*100):0;
+    const tagCls=ch.tag==='adv'?'adv':'both';
+    const tagTxt=ch.tag==='adv'?'Advanced Only':'Both';
+    html+=`
+    <div class="ch-block">
+      <div class="ch-hdr" onclick="toggleChapter(this)">
+        <span class="ch-num">${String(ch.ch).padStart(2,'0')}</span>
+        <span class="ch-name">${ch.name}</span>
+        <span class="ch-tag ${tagCls}">${tagTxt}</span>
+        <span class="ch-prog">${done}/${ch.topics.length}</span>
+        <div class="ch-mini-bar"><div class="ch-mini-fill" style="width:${pct}%;background:${colors[sub]||'var(--accent)'};"></div></div>
+        <span class="ch-chev">▼</span>
+      </div>
+      <div class="topic-grid">
+        ${ch.topics.map(t=>{
+          const id=`jee__${sub}__${ch.ch}__${t.t.slice(0,20)}`;
+          const st=S.jeeSyl[id]||'';
+          return `<div class="topic-item ${st==='done'?'done':st==='revision'?'revision':''}" onclick="cycleJee('${CSS.escape(id)}',this)">
+            <div class="topic-cb">${st==='done'?'✓':st==='revision'?'R':''}</div>
+            <div>
+              <div class="topic-name">${t.t}</div>
+              ${t.adv?'<div class="topic-adv">◆ Advanced only</div>':''}
+              <div style="margin-top:3px;"><button class="rev-btn" onclick="event.stopPropagation();markJeeRevision('${CSS.escape(id)}')">📌 Revise</button></div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+  body.innerHTML=html;
+}
+function toggleChapter(hdr) {
+  const grid=hdr.nextElementSibling;
+  const open=grid.classList.contains('open');
+  grid.classList.toggle('open',!open);
+  hdr.classList.toggle('open',!open);
+}
+function cycleJee(id,el) {
+  const realId=id.replace(/\\(.)/g,'$1');
+  const cur=S.jeeSyl[realId]||'';
+  const next=cur===''?'done':cur==='done'?'revision':'';
+  S.jeeSyl[realId]=next;
+  save();
+  el.className=`topic-item ${next==='done'?'done':next==='revision'?'revision':''}`;
+  el.querySelector('.topic-cb').textContent=next==='done'?'✓':next==='revision'?'R':'';
+  renderJeeSyllabus(currentJeeTab);
+}
+function markJeeRevision(id) {
+  const realId=id.replace(/\\(.)/g,'$1');
+  S.jeeSyl[realId]='revision';
+  save();
+  renderJeeSyllabus(currentJeeTab);
+}
+
+// ═══════════════════════════════════════
+// ISI SYLLABUS
+// ═══════════════════════════════════════
+let currentIsiTab = 'isi_math';
+function switchIsiTab(sub,btn) {
+  currentIsiTab=sub;
+  document.querySelectorAll('#isi-tabs .tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  renderIsiSyllabus(sub);
+}
+function renderIsiSyllabus(sub) {
+  const chapters=ISI_DATA[sub];
+  const body=document.getElementById('isi-syllabus-body');
+  const colors={isi_math:'var(--accent)',isi_stat:'var(--che)',cmi_math:'var(--accent2)',cmi_cs:'var(--accent3)'};
+
+  // overall
+  let overall=0,total=0;
+  Object.keys(ISI_DATA).forEach(s=>ISI_DATA[s].forEach(ch=>ch.topics.forEach(t=>{
+    total++;
+    const id=`isi__${s}__${ch.ch}__${t.t.slice(0,20)}`;
+    if(S.isiSyl[id]==='done'||S.isiSyl[id]==='revision')overall++;
+  })));
+  let progHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-weight:700;">Overall ISI/CMI Progress</span><span class="mono" style="font-size:13px;color:var(--isi)">${overall}/${total} topics</span></div>`;
+  progHTML+=`<div class="prog-bar" style="height:8px;margin-bottom:14px;"><div class="prog-fill" style="width:${total?Math.round(overall/total*100):0}%;background:linear-gradient(90deg,var(--isi),var(--accent2));"></div></div>`;
+  progHTML+='<div style="display:flex;gap:14px;flex-wrap:wrap;">';
+  const labels={isi_math:'ISI Math',isi_stat:'ISI Stats',cmi_math:'CMI Math',cmi_cs:'CMI CS'};
+  Object.keys(ISI_DATA).forEach(s=>{
+    let d=0,t=0;
+    ISI_DATA[s].forEach(ch=>ch.topics.forEach(tp=>{t++;const id=`isi__${s}__${ch.ch}__${tp.t.slice(0,20)}`;if(S.isiSyl[id]==='done'||S.isiSyl[id]==='revision')d++;}));
+    const pct=t?Math.round(d/t*100):0;
+    progHTML+=`<div style="flex:1;min-width:90px;"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px;"><span>${labels[s]}</span><span class="mono" style="color:${colors[s]}">${pct}%</span></div><div class="prog-bar"><div class="prog-fill" style="width:${pct}%;background:${colors[s]};"></div></div></div>`;
+  });
+  progHTML+='</div>';
+  document.getElementById('isi-overall-card').innerHTML=progHTML;
+
+  let html='';
+  chapters.forEach(ch=>{
+    let done=0;
+    ch.topics.forEach(t=>{const id=`isi__${sub}__${ch.ch}__${t.t.slice(0,20)}`;if(S.isiSyl[id]==='done')done++;});
+    const pct=ch.topics.length?Math.round(done/ch.topics.length*100):0;
+    html+=`
+    <div class="ch-block">
+      <div class="ch-hdr" onclick="toggleChapter(this)">
+        <span class="ch-num">${String(ch.ch).padStart(2,'0')}</span>
+        <span class="ch-name">${ch.name}</span>
+        <span class="ch-prog">${done}/${ch.topics.length}</span>
+        <div class="ch-mini-bar"><div class="ch-mini-fill" style="width:${pct}%;background:${colors[sub]};"></div></div>
+        <span class="ch-chev">▼</span>
+      </div>
+      <div class="topic-grid">
+        ${ch.topics.map(t=>{
+          const id=`isi__${sub}__${ch.ch}__${t.t.slice(0,20)}`;
+          const st=S.isiSyl[id]||'';
+          return `<div class="topic-item ${st==='done'?'done':st==='revision'?'revision':''}" onclick="cycleIsi('${sub}','${CSS.escape(id)}',this)">
+            <div class="topic-cb">${st==='done'?'✓':st==='revision'?'R':''}</div>
+            <div>
+              <div class="topic-name">${t.t}</div>
+              <div style="margin-top:3px;"><button class="rev-btn" onclick="event.stopPropagation();markIsiRevision('${CSS.escape(id)}')">📌 Revise</button></div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  });
+  body.innerHTML=html;
+}
+function cycleIsi(sub,id,el) {
+  const realId=id.replace(/\\(.)/g,'$1');
+  const cur=S.isiSyl[realId]||'';
+  const next=cur===''?'done':cur==='done'?'revision':'';
+  S.isiSyl[realId]=next;
+  save();
+  el.className=`topic-item ${next==='done'?'done':next==='revision'?'revision':''}`;
+  el.querySelector('.topic-cb').textContent=next==='done'?'✓':next==='revision'?'R':'';
+  renderIsiSyllabus(currentIsiTab);
+}
+function markIsiRevision(id) {
+  const realId=id.replace(/\\(.)/g,'$1');
+  S.isiSyl[realId]='revision';
+  save();
+  renderIsiSyllabus(currentIsiTab);
+}
+
+// ═══════════════════════════════════════
+// MOCK TESTS
+// ═══════════════════════════════════════
+function addMock() {
+  const date=document.getElementById('mk-date').value;
+  const name=document.getElementById('mk-name').value.trim();
+  const type=document.getElementById('mk-type').value;
+  const phy=parseInt(document.getElementById('mk-phy').value)||0;
+  const che=parseInt(document.getElementById('mk-che').value)||0;
+  const mat=parseInt(document.getElementById('mk-mat').value)||0;
+  const max=parseInt(document.getElementById('mk-max').value)||300;
+  if(!date||!name){alert('Please enter date and test name.');return;}
+  S.mocks.push({date,name,type,phy,che,mat,max,total:phy+che+mat});
+  S.mocks.sort((a,b)=>a.date.localeCompare(b.date));
+  save();
+  document.getElementById('mk-name').value='';
+  document.getElementById('mk-phy').value='';
+  document.getElementById('mk-che').value='';
+  document.getElementById('mk-mat').value='';
+  renderMocks();
+}
+function deleteMock(i){if(confirm('Delete this test?')){S.mocks.splice(i,1);save();renderMocks();}}
+function renderMocks() {
+  document.getElementById('mk-date').value=todayStr();
+  const wrap=document.getElementById('mock-wrap');
+  if(!S.mocks.length){wrap.innerHTML='<div class="empty">No mock tests logged yet.<br>Add your first test above!</div>';return;}
+  let html=`<div style="overflow-x:auto;"><table class="mock-table"><thead><tr><th>Date</th><th>Name</th><th>Type</th><th style="color:var(--phy)">Phy</th><th style="color:var(--che)">Che</th><th style="color:var(--mat)">Mat</th><th>Total</th><th>%</th><th></th></tr></thead><tbody>`;
+  S.mocks.forEach((t,i)=>{
+    const pct=Math.round(t.total/t.max*100);
+    const pc=pct>=80?'var(--accent3)':pct>=60?'var(--accent4)':'var(--accent5)';
+    html+=`<tr><td>${t.date}</td><td style="font-weight:600;">${t.name}</td><td><span class="badge badge-blue">${t.type}</span></td><td style="color:var(--phy)" class="mono">${t.phy}</td><td style="color:var(--che)" class="mono">${t.che}</td><td style="color:var(--mat)" class="mono">${t.mat}</td><td class="mono" style="font-weight:700;">${t.total}/${t.max}</td><td class="mono" style="color:${pc};font-weight:700;">${pct}%</td><td><button class="btn btn-danger" style="padding:4px 8px;font-size:11px;" onclick="deleteMock(${i})">✕</button></td></tr>`;
+  });
+  html+='</tbody></table></div>';
+  wrap.innerHTML=html;
+}
+
+// ═══════════════════════════════════════
+// TO-DO
+// ═══════════════════════════════════════
+function addTodo(){
+  const inp=document.getElementById('todo-inp');
+  const t=inp.value.trim();
+  if(!t)return;
+  S.todos.push({text:t,done:false,date:todayStr(),id:Date.now()});
+  save();inp.value='';renderTodo();
+}
+function toggleTodo(id){const t=S.todos.find(t=>t.id===id);if(t){t.done=!t.done;save();renderTodo();}}
+function deleteTodo(id){S.todos=S.todos.filter(t=>t.id!==id);save();renderTodo();}
+function clearDone(){S.todos=S.todos.filter(t=>!t.done);save();renderTodo();}
+function renderTodo(){
+  const today=todayStr();
+  document.getElementById('todo-date-disp').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const e=S.cal[today]||{};
+  const ie=S.isiCal[today]||{};
+  document.getElementById('todo-today-qs').innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--phy)">Physics today</span><span class="mono" style="font-weight:700;">${e.p||0} q</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--che)">Chemistry today</span><span class="mono" style="font-weight:700;">${e.c||0} q</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--mat)">Maths today</span><span class="mono" style="font-weight:700;">${e.m||0} q</span></div>
+      <div style="display:flex;justify-content:space-between;"><span style="color:var(--isi)">ISI/CMI today</span><span class="mono" style="font-weight:700;">${ie.q||0} q</span></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px;">Log in Question Tracker</div>
+    </div>`;
+  const tds=S.todos.filter(t=>t.date===today);
+  const all=[...tds,...S.todos.filter(t=>t.date!==today&&!t.done)];
+  const list=document.getElementById('todo-list');
+  if(!all.length){list.innerHTML='<div class="empty">No tasks yet!<br>Add something above.</div>';return;}
+  list.innerHTML=all.map(t=>`
+    <div class="todo-item ${t.done?'done':''}">
+      <div class="tcb" onclick="toggleTodo(${t.id})">${t.done?'✓':''}</div>
+      <span class="ttxt">${t.text}</span>
+      ${t.date!==today?`<span class="tdate">${t.date}</span>`:''}
+      <button class="tdel" onclick="deleteTodo(${t.id})">×</button>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════
+// STREAK
+// ═══════════════════════════════════════
+function renderStreak(){
+  const s=computeStreak();
+  document.getElementById('streak-big-num').textContent=s;
+
+  // this week
+  const now=new Date();
+  const dow=now.getDay();
+  const ws=new Date(now);ws.setDate(now.getDate()-dow);
+  let weekHTML='<div style="display:flex;gap:6px;margin-top:8px;">';
+  for(let i=0;i<7;i++){
+    const d=new Date(ws);d.setDate(ws.getDate()+i);
+    const key=fmtDate(d);
+    const e=S.cal[key]||{};
+    const tot=(e.p||0)+(e.c||0)+(e.m||0)+(S.isiCal[key]?.q||0);
+    const isToday=key===todayStr();
+    weekHTML+=`<div style="flex:1;text-align:center;"><div style="font-size:9px;color:var(--text3);margin-bottom:4px;">${DAYS[d.getDay()]}</div><div style="width:100%;aspect-ratio:1;border-radius:50%;background:${tot>0?'var(--accent4)':isToday?'var(--border2)':'var(--border)'};display:flex;align-items:center;justify-content:center;font-size:${tot>0?'14':'12'}px;">${tot>0?'🔥':isToday?'·':'○'}</div></div>`;
+  }
+  weekHTML+='</div>';
+  document.getElementById('streak-weekly').innerHTML=weekHTML;
+
+  // all-time
+  let total=0;
+  Object.values(S.cal).forEach(e=>{if((e.p||0)+(e.c||0)+(e.m||0)>0)total++;});
+  Object.entries(S.isiCal).forEach(([k,e])=>{if(e.q>0&&!Object.keys(S.cal).find(k2=>k2===k&&(S.cal[k2].p||S.cal[k2].c||S.cal[k2].m)))total++;});
+  document.getElementById('streak-alltime').innerHTML=`
+    <div>Total study days logged: <strong class="mono" style="color:var(--accent)">${total}</strong></div>
+    <div>Current streak: <strong class="mono" style="color:var(--accent4)">${s} days 🔥</strong></div>
+    <div>Mock tests taken: <strong class="mono" style="color:var(--accent5)">${S.mocks.length}</strong></div>`;
+}
+
+// ═══════════════════════════════════════
+// REVISION
+// ═══════════════════════════════════════
+function renderRevision(){
+  const items=[];
+  Object.entries(S.jeeSyl).forEach(([id,st])=>{
+    if(st!=='revision')return;
+    const parts=id.split('__');
+    items.push({exam:'JEE',sub:parts[1],ch:parts[2],topic:parts.slice(3).join('__'),id,key:'jeeSyl'});
+  });
+  Object.entries(S.isiSyl).forEach(([id,st])=>{
+    if(st!=='revision')return;
+    const parts=id.split('__');
+    items.push({exam:'ISI/CMI',sub:parts[1],ch:parts[2],topic:parts.slice(3).join('__'),id,key:'isiSyl'});
+  });
+
+  const body=document.getElementById('revision-body');
+  if(!items.length){body.innerHTML='<div class="empty">No topics marked for revision yet!<br><br>In the Syllabus pages, click 📌 Revise on any topic to add it here.</div>';return;}
+
+  body.innerHTML=`<div class="sec-title" style="margin-bottom:12px;">${items.length} topics need revision</div><div class="rev-list">${
+    items.map(item=>`
+      <div class="rev-item">
+        <span class="rev-exam badge ${item.exam==='JEE'?'badge-blue':'badge-orange'}">${item.exam}</span>
+        <div style="flex:1;"><div class="rev-name">${item.topic}</div><div class="rev-ch" style="font-size:11px;color:var(--text3)">Ch ${item.ch} · ${item.sub}</div></div>
+        <button class="rev-done-btn" onclick="markRevDone('${item.key}','${CSS.escape(item.id)}')">Mark Done ✓</button>
+      </div>`).join('')
+  }</div>`;
+}
+function markRevDone(key,id){
+  const realId=id.replace(/\\(.)/g,'$1');
+  S[key][realId]='done';
+  save();
+  renderRevision();
+}
+
+// ═══════════════════════════════════════
+// PERFORMANCE
+// ═══════════════════════════════════════
+let perfCharts={};
+function renderPerformance(){
+  const weeks=getWeeks(START_DATE,END_DATE);
+  const labels=[],pd=[],cd=[],md=[],ptgt=[],mtgt=[];
+  weeks.forEach((w,i)=>{
+    let tp=0,tc=0,tm=0;
+    w.days.forEach(d=>{const e=S.cal[fmtDate(d)]||{};tp+=e.p||0;tc+=e.c||0;tm+=e.m||0;});
+    labels.push(`W${i+1}`);pd.push(tp);cd.push(tc);md.push(tm);ptgt.push(150);mtgt.push(200);
+  });
+  if(perfCharts.w)perfCharts.w.destroy();
+  const isDark=document.documentElement.dataset.theme!=='light';
+  const gridColor=isDark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)';
+  const tickColor=isDark?'#6b7299':'#8090b0';
+  perfCharts.w=new Chart(document.getElementById('chart-weekly'),{
+    type:'bar',
+    data:{labels,datasets:[
+      {label:'Physics',data:pd,backgroundColor:'rgba(56,189,248,0.65)',borderColor:'#38bdf8',borderWidth:1,borderRadius:3},
+      {label:'Chemistry',data:cd,backgroundColor:'rgba(192,132,252,0.65)',borderColor:'#c084fc',borderWidth:1,borderRadius:3},
+      {label:'Maths',data:md,backgroundColor:'rgba(52,211,153,0.65)',borderColor:'#34d399',borderWidth:1,borderRadius:3},
+      {label:'Phy Target',data:ptgt,type:'line',borderColor:'rgba(56,189,248,0.5)',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false},
+      {label:'Mat Target',data:mtgt,type:'line',borderColor:'rgba(52,211,153,0.5)',borderDash:[5,5],borderWidth:1.5,pointRadius:0,fill:false},
+    ]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tickColor,maxRotation:45,font:{size:10}},grid:{color:gridColor}},y:{ticks:{color:tickColor},grid:{color:gridColor}}}}
+  });
+  if(perfCharts.m)perfCharts.m.destroy();
+  const canvEl=document.getElementById('chart-mocks');
+  if(S.mocks.length){
+    perfCharts.m=new Chart(canvEl,{
+      type:'line',
+      data:{
+        labels:S.mocks.map(t=>t.date.slice(5)),
+        datasets:[
+          {label:'Total %',data:S.mocks.map(t=>Math.round(t.total/t.max*100)),borderColor:'#4f7cff',backgroundColor:'rgba(79,124,255,0.1)',tension:.4,fill:true,pointRadius:5,pointBackgroundColor:'#4f7cff'},
+          {label:'Physics',data:S.mocks.map(t=>t.phy),borderColor:'#38bdf8',tension:.4,pointRadius:3,fill:false,borderDash:[4,4]},
+          {label:'Chemistry',data:S.mocks.map(t=>t.che),borderColor:'#c084fc',tension:.4,pointRadius:3,fill:false,borderDash:[4,4]},
+          {label:'Maths',data:S.mocks.map(t=>t.mat),borderColor:'#34d399',tension:.4,pointRadius:3,fill:false,borderDash:[4,4]},
+        ]
+      },
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:tickColor}},y:{ticks:{color:tickColor},grid:{color:gridColor}}}}
+    });
+  } else {
+    canvEl.parentElement.innerHTML='<div class="empty" style="height:200px;display:flex;align-items:center;justify-content:center;">No mock tests logged yet.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+load();
+applyTheme();
+setGreeting();
+document.getElementById('mk-date').value=todayStr();
+renderDashboard();
+
+// Live countdowns — self-adjusting every second
+function tickAll(){
+  renderCountdown(document.getElementById('cd-mains'),JEE_MAINS);
+  renderCountdown(document.getElementById('cd-adv'),JEE_ADV);
+  renderCountdown(document.getElementById('cd-oct'),END_DATE);
+  renderCountdown(document.getElementById('dash-cd-oct'),END_DATE);
+}
+tickAll();
+setInterval(tickAll,1000);
+
+// ═══════════════════════════════════════
+// PWA — PROGRESSIVE WEB APP
+// ═══════════════════════════════════════
+
+// 1. Inject the Web App Manifest dynamically (so it works from a single HTML file)
+(function injectManifest() {
+  const icons = [
+    {
+      src: "data:image/svg+xml," + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+          <rect width="512" height="512" rx="100" fill="#0b0d14"/>
+          <rect x="40" y="40" width="432" height="432" rx="80" fill="#13161f"/>
+          <text x="256" y="310" font-family="serif" font-size="220" font-weight="bold"
+                text-anchor="middle" fill="#4f7cff">⚡</text>
+          <text x="256" y="390" font-family="sans-serif" font-size="52" font-weight="bold"
+                text-anchor="middle" fill="#6b7299">JEE 2027</text>
+        </svg>`),
+      sizes: "512x512",
+      type: "image/svg+xml",
+      purpose: "any maskable"
+    }
+  ];
+  const manifest = {
+    name: "JEE Command · 2027",
+    short_name: "JEE Command",
+    description: "JEE 2027 Study Tracker — Questions, Syllabus, Countdowns, Mocks",
+    start_url: "./",
+    display: "standalone",
+    background_color: "#0b0d14",
+    theme_color: "#0b0d14",
+    orientation: "landscape-primary",
+    icons: icons,
+    categories: ["education", "productivity"],
+    shortcuts: [
+      { name: "Question Tracker", short_name: "Questions", description: "Log today's questions", url: "./#calendar" },
+      { name: "JEE Syllabus",     short_name: "Syllabus",  description: "Check syllabus progress", url: "./#jee-syllabus" }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+  const url  = URL.createObjectURL(blob);
+  document.getElementById('pwa-manifest').href = url;
+})();
+
+// 2. Register Service Worker (inline, via blob URL)
+(function registerSW() {
+  const swCode = `
+    const CACHE = 'jee-cmd-v1';
+    const ASSETS = []; // single file app — no external assets to pre-cache
+    self.addEventListener('install', e => {
+      self.skipWaiting();
+    });
+    self.addEventListener('activate', e => {
+      e.waitUntil(
+        caches.keys().then(keys =>
+          Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
+        )
+      );
+      self.clients.claim();
+    });
+    self.addEventListener('fetch', e => {
+      // Network first, fall back to cache
+      e.respondWith(
+        fetch(e.request)
+          .then(res => {
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone));
+            return res;
+          })
+          .catch(() => caches.match(e.request))
+      );
+    });
+  `;
+  const blob   = new Blob([swCode], { type: 'application/javascript' });
+  const swUrl  = URL.createObjectURL(blob);
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register(swUrl, { scope: './' })
+      .then(() => console.log('JEE Command: Service Worker registered ✓'))
+      .catch(err => console.log('SW registration skipped (file://):', err.message));
+  }
+})();
+
+// 3. Capture install prompt & show install UI
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Show both the topbar button and the bottom banner
+  document.getElementById('pwa-topbar-btn').classList.add('show');
+  setTimeout(() => document.getElementById('pwa-banner').classList.add('show'), 2000);
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  document.getElementById('pwa-topbar-btn').classList.remove('show');
+  document.getElementById('pwa-banner').classList.remove('show');
+  showToast('✅ JEE Command installed! Find it in your Start Menu.');
+});
+
+function installPWA() {
+  if (!deferredPrompt) {
+    showToast('📌 To install: click the install icon (⊕) in the Edge/Chrome address bar, or go to browser menu → "Install JEE Command"');
+    return;
+  }
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(choice => {
+    if (choice.outcome === 'accepted') {
+      showToast('🎉 Installing JEE Command...');
+    }
+    deferredPrompt = null;
+    document.getElementById('pwa-topbar-btn').classList.remove('show');
+    document.getElementById('pwa-banner').classList.remove('show');
+  });
+}
+
+function dismissBanner() {
+  document.getElementById('pwa-banner').classList.remove('show');
+}
+
+// 4. Toast notification helper
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = `
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background:#1c2640; border:1px solid rgba(79,124,255,0.3);
+    color:#dde5ff; padding:12px 20px; border-radius:10px;
+    font-size:13px; font-family:'Syne',sans-serif; font-weight:500;
+    z-index:99999; box-shadow:0 8px 32px rgba(0,0,0,0.5);
+    max-width:420px; text-align:center; line-height:1.5;
+    animation:slideUp .3s ease;
+  `;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 6000);
+}
+
+</script>
+
+<!-- PWA Install Banner (bottom right) -->
+<div id="pwa-banner">
+  <div class="pwa-banner-title">⚡ Install JEE Command</div>
+  <div class="pwa-banner-sub">Add to your desktop — opens like a real app, no browser needed!</div>
+  <div class="pwa-banner-btns">
+    <button class="pwa-install-btn" onclick="installPWA()">Install Now</button>
+    <button class="pwa-dismiss-btn" onclick="dismissBanner()">Later</button>
+  </div>
+</div>
+
+</body>
+</html>
